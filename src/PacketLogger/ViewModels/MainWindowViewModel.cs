@@ -4,10 +4,17 @@
 //  Copyright (c) František Boháček. All rights reserved.
 //  Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Dock.Model.Controls;
 using Dock.Model.Core;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using NosSmooth.Comms.Local.Extensions;
+using NosSmooth.Core.Extensions;
+using NosSmooth.PacketSerializer.Extensions;
+using NosSmooth.PacketSerializer.Packets;
 using PacketLogger.Models;
 using PacketLogger.Models.Packets;
 
@@ -23,7 +30,24 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     /// </summary>
     public MainWindowViewModel()
     {
-        _factory = new DockFactory(this);
+        var services = new ServiceCollection()
+            .AddLogging(b => b.ClearProviders().AddConsole())
+            .AddSingleton<DockFactory>()
+            .AddNostaleCore()
+            .AddStatefulInjector()
+            .AddStatefulEntity<CommsPacketProvider>()
+            .AddLocalComms()
+            .AddPacketResponder<PacketResponder>()
+            .BuildServiceProvider();
+
+        var packetTypes = services.GetRequiredService<IPacketTypesRepository>();
+        var result = packetTypes.AddDefaultPackets();
+        if (!result.IsSuccess)
+        {
+            Console.WriteLine(result.ToFullString());
+        }
+
+        _factory = services.GetRequiredService<DockFactory>();
 
         Layout = _factory?.CreateLayout();
         if (Layout is { })

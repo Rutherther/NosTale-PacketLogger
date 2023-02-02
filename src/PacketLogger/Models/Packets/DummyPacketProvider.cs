@@ -48,6 +48,20 @@ public class DummyPacketProvider : IPacketProvider, IDisposable
     public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <inheritdoc />
+    public bool LogReceived
+    {
+        get => true;
+        set { }
+    }
+
+    /// <inheritdoc />
+    public bool LogSent
+    {
+        get => true;
+        set { }
+    }
+
+    /// <inheritdoc />
     public bool IsOpen => false;
 
     /// <inheritdoc />

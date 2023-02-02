@@ -10,13 +10,18 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Concurrency;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Avalonia;
+using Avalonia.Collections;
 using DynamicData;
 using DynamicData.Binding;
+using PacketLogger.Models;
 using PacketLogger.Models.Filters;
 using PacketLogger.Models.Packets;
 using ReactiveUI;
+using Reloaded.Memory.Kernel32;
 
 namespace PacketLogger.ViewModels;
 
@@ -24,7 +29,9 @@ namespace PacketLogger.ViewModels;
 public class LogTabViewModel : ViewModelBase, IDisposable
 {
     private readonly ReadOnlyObservableCollection<PacketInfo> _packets;
-    private IDisposable _packetsSubscription;
+    private readonly IDisposable _cleanUp;
+    private bool _logReceived = true;
+    private bool _logSent = true;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="LogTabViewModel"/> class.
@@ -51,14 +58,30 @@ public class LogTabViewModel : ViewModelBase, IDisposable
                 }
             );
 
-        _packetsSubscription = Provider.Packets.Connect()
+        var packetsSubscription = Provider.Packets.Connect()
             .Filter(dynamicFilter)
-            .Sort(SortExpressionComparer<PacketInfo>.Ascending(x => x.PacketIndex))
+            .Sort(new PacketComparer())
             .Bind(out _packets)
             .ObserveOn(RxApp.MainThreadScheduler)
             .DisposeMany()
             .Subscribe();
 
+        var scrollSubscription = FilteredPackets.ObserveCollectionChanges()
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Do
+            (
+                change =>
+                {
+                    if (Scroll && change.EventArgs.NewItems is not null)
+                    {
+                        var last = FilteredPackets[^1];
+                        RxApp.MainThreadScheduler.Schedule(DateTimeOffset.Now.AddMilliseconds(1), () => SelectedPacket = last);
+                    }
+                }
+            )
+            .Subscribe();
+
+        _cleanUp = new CompositeDisposable(scrollSubscription, packetsSubscription);
         CopyPackets = ReactiveCommand.CreateFromObservable<IList, Unit>
         (
             list => Observable.StartAsync
@@ -151,17 +174,38 @@ public class LogTabViewModel : ViewModelBase, IDisposable
     /// <summary>
     /// Gets or sets whether to log received packets.
     /// </summary>
-    public bool LogReceived { get; set; } = true;
+    public bool LogReceived
+    {
+        get => _logReceived;
+        set
+        {
+            Provider.LogReceived = value;
+            _logReceived = value;
+        }
+    }
 
     /// <summary>
     /// Gets or sets whether to log sent packets.
     /// </summary>
-    public bool LogSent { get; set; } = true;
+    public bool LogSent
+    {
+        get => _logSent;
+        set
+        {
+            Provider.LogSent = value;
+            _logSent = value;
+        }
+    }
 
     /// <summary>
     /// Gets or sets whether to scroll to teh bottom of the grid.
     /// </summary>
     public bool Scroll { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the currently selected packet.
+    /// </summary>
+    public object? SelectedPacket { get; set; }
 
     /// <summary>
     /// Gets empty string.
@@ -192,6 +236,6 @@ public class LogTabViewModel : ViewModelBase, IDisposable
     public void Dispose()
     {
         TogglePane.Dispose();
-        _packetsSubscription.Dispose();
+        _cleanUp.Dispose();
     }
 }

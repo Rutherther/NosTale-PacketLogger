@@ -11,6 +11,8 @@ using Dock.Model.Controls;
 using Dock.Model.Core;
 using Dock.Model.Mvvm;
 using Dock.Model.Mvvm.Controls;
+using NosSmooth.Comms.Local;
+using NosSmooth.Core.Stateful;
 using PacketLogger.Models;
 using ReactiveUI;
 
@@ -21,7 +23,9 @@ namespace PacketLogger.ViewModels;
 /// </summary>
 public class DockFactory : Factory, IDisposable
 {
-    private NostaleProcesses _processes = new();
+    private readonly StatefulRepository _repository;
+    private readonly NostaleProcesses _processes = new();
+    private readonly CommsInjector _injector;
 
     /// <inheritdoc />
     public override IDocumentDock CreateDocumentDock()
@@ -37,7 +41,7 @@ public class DockFactory : Factory, IDisposable
                 }
 
                 var index = documentDock.VisibleDockables?.Count + 1;
-                var document = new PacketLogDocumentViewModel(_processes)
+                var document = new PacketLogDocumentViewModel(_injector, _repository, _processes)
                     { Id = $"New tab {index}", Title = $"New tab {index}" };
 
                 AddDockable(documentDock, document);
@@ -48,23 +52,24 @@ public class DockFactory : Factory, IDisposable
         return documentDock;
     }
 
-    private readonly object _context;
     private IRootDock? _rootDock;
     private IDocumentDock? _documentDock;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DockFactory"/> class.
     /// </summary>
-    /// <param name="context">The context.</param>
-    public DockFactory(object context)
+    /// <param name="injector">The communications injector.</param>
+    /// <param name="repository">The repository.</param>
+    public DockFactory(CommsInjector injector, StatefulRepository repository)
     {
-        _context = context;
+        _repository = repository;
+        _injector = injector;
     }
 
     /// <inheritdoc />
     public override IRootDock CreateLayout()
     {
-        var initialTab = new PacketLogDocumentViewModel(_processes)
+        var initialTab = new PacketLogDocumentViewModel(_injector, _repository, _processes)
             { Id = $"New tab", Title = $"New tab" };
         var documentDock = CreateDocumentDock();
         documentDock.IsCollapsable = false;

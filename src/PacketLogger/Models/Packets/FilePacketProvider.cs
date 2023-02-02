@@ -40,6 +40,20 @@ public class FilePacketProvider : IPacketProvider
     public bool IsOpen => false;
 
     /// <inheritdoc />
+    public bool LogReceived
+    {
+        get => true;
+        set { }
+    }
+
+    /// <inheritdoc />
+    public bool LogSent
+    {
+        get => true;
+        set { }
+    }
+
+    /// <inheritdoc />
     public SourceList<PacketInfo> Packets
         => _packets ?? throw new InvalidOperationException("File client not initialized yet.");
 

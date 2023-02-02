@@ -25,6 +25,16 @@ public interface IPacketProvider : INotifyPropertyChanged
     public bool IsOpen { get; }
 
     /// <summary>
+    /// Gets or sets whether to log received packets.
+    /// </summary>
+    public bool LogReceived { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether to log sent pckets.
+    /// </summary>
+    public bool LogSent { get; set; }
+
+    /// <summary>
     /// Gets the filtered packets from this provider.
     /// </summary>
     public SourceList<PacketInfo> Packets { get; }

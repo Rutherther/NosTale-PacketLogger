@@ -13,7 +13,7 @@
 
     <Grid>
         <Border IsVisible="{Binding !Loaded}"
-                MaxWidth="800" MaxHeight="600"
+                MaxWidth="1000" MaxHeight="600"
                 CornerRadius="25"
                 Background="{DynamicResource SystemControlPageBackgroundChromeLowBrush}">
             <Grid Margin="50">
@@ -69,7 +69,10 @@
                                 <DataGridTemplateColumn Header="Connect">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Button Content="Connect" />
+                                            <Button Content="Connect"
+                                                    Command="{Binding $parent[UserControl].DataContext.OpenProcess}"
+                                                    IsEnabled="{Binding !$parent[UserControl].DataContext.Loading}"
+                                                    CommandParameter="{Binding }" />
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
@@ -78,7 +81,7 @@
                     </StackPanel>
 
                     <TextBlock Grid.Row="0" Grid.Column="1" FontSize="34" Margin="-10,0,0,0" Text="Packet Sender" />
-                    
+
                     <TextBlock Grid.Row="1" Grid.Column="1" Text="To be implemented..." />
                 </Grid>
             </Grid>

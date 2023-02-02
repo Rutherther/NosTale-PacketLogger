@@ -65,6 +65,8 @@
 
         <DataGrid Items="{Binding FilteredPackets}" IsReadOnly="True" CanUserSortColumns="False"
                   x:Name="PacketsLog"
+                  SelectedItem="{Binding SelectedPacket, Mode=TwoWay}"
+                  SelectionChanged="PacketsLog_OnSelectionChanged"
                   CanUserReorderColumns="False">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Time" Binding="{Binding Date, StringFormat = {}{0:HH:mm:ss}}"
