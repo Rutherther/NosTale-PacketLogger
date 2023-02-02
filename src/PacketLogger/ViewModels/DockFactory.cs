@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reactive;
 using Dock.Avalonia.Controls;
 using Dock.Model.Controls;
 using Dock.Model.Core;
@@ -26,6 +27,57 @@ public class DockFactory : Factory, IDisposable
     private readonly StatefulRepository _repository;
     private readonly NostaleProcesses _processes = new();
     private readonly CommsInjector _injector;
+
+    private IRootDock? _rootDock;
+    private IDocumentDock? _documentDock;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DockFactory"/> class.
+    /// </summary>
+    /// <param name="injector">The communications injector.</param>
+    /// <param name="repository">The repository.</param>
+    public DockFactory(CommsInjector injector, StatefulRepository repository)
+    {
+        _repository = repository;
+        _injector = injector;
+    }
+
+    /// <summary>
+    /// Gets the document dock.
+    /// </summary>
+    public IDocumentDock DocumentDock
+        => _documentDock ?? throw new InvalidOperationException("Dock factory is not initialized");
+
+    /// <summary>
+    /// Creaate and load a document.
+    /// </summary>
+    /// <param name="load">The function to use to load the document.</param>
+    public void CreateLoadedDocument(Func<PacketLogDocumentViewModel, IObservable<Unit>> load)
+    {
+        if (_documentDock is null)
+        {
+            return;
+        }
+
+        var document = new PacketLogDocumentViewModel(_injector, _repository, _processes)
+            { Id = $"New tab", Title = $"New tab" };
+
+        var observable = load(document);
+        observable.Subscribe
+        (
+            x =>
+            {
+                if (!document.Loaded)
+                {
+                    return;
+                }
+
+                AddDockable(_documentDock, document);
+                SetActiveDockable(document);
+                SetFocusedDockable(_documentDock, document);
+            }
+        );
+    }
 
     /// <inheritdoc />
     public override IDocumentDock CreateDocumentDock()
@@ -50,20 +102,6 @@ public class DockFactory : Factory, IDisposable
             }
         );
         return documentDock;
-    }
-
-    private IRootDock? _rootDock;
-    private IDocumentDock? _documentDock;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DockFactory"/> class.
-    /// </summary>
-    /// <param name="injector">The communications injector.</param>
-    /// <param name="repository">The repository.</param>
-    public DockFactory(CommsInjector injector, StatefulRepository repository)
-    {
-        _repository = repository;
-        _injector = injector;
     }
 
     /// <inheritdoc />

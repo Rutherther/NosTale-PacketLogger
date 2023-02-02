@@ -21,18 +21,18 @@
     <Grid RowDefinitions="Auto,*" ColumnDefinitions="Auto, *">
         <Menu Grid.Row="0" Grid.Column="0">
             <MenuItem Header="_File">
-                <MenuItem Header="_Open File..." />
+                <MenuItem Header="_New Tab" Command="{Binding NewTab}"></MenuItem>
+                <MenuItem Header="_Open Empty" Command="{Binding OpenEmpty}" />
+                <MenuItem Header="_Open File..." Command="{Binding OpenFile}" />
                 <Separator />
-                <MenuItem Header="_Save Filtered As..." />
-                <MenuItem Header="Save All As..." />
+                <MenuItem Header="_Save Filtered As..." Command="{Binding SaveFiltered}" />
+                <MenuItem Header="Save All As..." Command="{Binding SaveAll}" />
                 <Separator />
-                <MenuItem Header="Exit" />
+                <MenuItem Header="Exit" Command="{Binding QuitApplication}" />
             </MenuItem>
             <MenuItem Header="_Tools">
-                <MenuItem Header="_Packet Sender">
-                    <MenuItem Header="_Test" />
-                </MenuItem>
-                <MenuItem Header="_Packet Analyzer"></MenuItem>
+                <MenuItem Header="_Packet Sender"/>
+                <MenuItem Header="_Packet Analyzer"/>
             </MenuItem>
         </Menu>
         
