@@ -25,8 +25,7 @@ namespace PacketLogger.Models.Packets;
 public class FilePacketProvider : IPacketProvider
 {
     private readonly string _fileName;
-    private IReadOnlyList<PacketInfo>? _packets;
-    private ObservableCollection<PacketInfo>? _filteredPackets;
+    private SourceList<PacketInfo>? _packets;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="FilePacketProvider"/> class.
@@ -41,7 +40,8 @@ public class FilePacketProvider : IPacketProvider
     public bool IsOpen => false;
 
     /// <inheritdoc />
-    public SourceList<PacketInfo> Packets => throw new InvalidOperationException("File client not initialized yet.");
+    public SourceList<PacketInfo> Packets
+        => _packets ?? throw new InvalidOperationException("File client not initialized yet.");
 
     /// <inheritdoc/>
     public async Task<Result> Open()
@@ -51,7 +51,7 @@ public class FilePacketProvider : IPacketProvider
             return new NotFoundError($"Could not find file {_fileName}");
         }
 
-        var packets = new List<PacketInfo>();
+        var packets = new SourceList<PacketInfo>();
         var index = 0;
         foreach (var line in await File.ReadAllLinesAsync(_fileName))
         {
@@ -61,25 +61,35 @@ public class FilePacketProvider : IPacketProvider
             }
 
             var splitted = line.Split('\t', 3);
-            if (splitted.Length != 3)
+            if (splitted.Length == 2)
             {
-                continue;
-            }
-
-            packets.Add
-            (
-                new PacketInfo
+                packets.Add
                 (
-                    index++,
-                    DateTime.Parse(splitted[0].Trim('[', ']')),
-                    splitted[1] == "[Recv]" ? PacketSource.Server : PacketSource.Client,
-                    splitted[2]
-                )
-            );
+                    new PacketInfo
+                    (
+                        index++,
+                        DateTime.Now,
+                        splitted[0] == "[Recv]" ? PacketSource.Server : PacketSource.Client,
+                        splitted[1]
+                    )
+                );
+            }
+            else if (splitted.Length == 3)
+            {
+                packets.Add
+                (
+                    new PacketInfo
+                    (
+                        index++,
+                        DateTime.Parse(splitted[0].Trim('[', ']')),
+                        splitted[1] == "[Recv]" ? PacketSource.Server : PacketSource.Client,
+                        splitted[2]
+                    )
+                );
+            }
         }
 
-        _packets = packets.AsReadOnly();
-        _filteredPackets = new ObservableCollection<PacketInfo>(_packets);
+        _packets = packets;
         return Result.FromSuccess();
     }
 
