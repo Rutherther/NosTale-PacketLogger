@@ -5,17 +5,84 @@
              xmlns:views="clr-namespace:PacketLogger.Views"
              xmlns:viewModels="clr-namespace:PacketLogger.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:i="clr-namespace:Projektanker.Icons.Avalonia;assembly=Projektanker.Icons.Avalonia"
              x:Class="PacketLogger.Views.PacketLogDocumentView">
     <Design.DataContext>
         <viewModels:PacketLogDocumentViewModel />
     </Design.DataContext>
+
     <Grid>
-        <Grid IsVisible="{Binding !Loaded}">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <Button Content="Open File" IsEnabled="{Binding !Loading}" Command="{Binding OpenFile}"></Button>
-                <Button Content="Open Dummy" IsEnabled="{Binding !Loading}" Command="{Binding OpenDummy}"></Button>
-            </StackPanel>
-        </Grid>
+        <Border IsVisible="{Binding !Loaded}"
+                MaxWidth="800" MaxHeight="600"
+                CornerRadius="25"
+                Background="{DynamicResource SystemControlPageBackgroundChromeLowBrush}">
+            <Grid Margin="50">
+                <Grid ColumnDefinitions="*,*" RowDefinitions="60, 80, 80, *">
+                    <Grid.Styles>
+                        <Style Selector="Button.open">
+                            <Setter Property="FontSize" Value="24"></Setter>
+                            <Setter Property="Width" Value="200" />
+                            <Setter Property="Height" Value="60" />
+                            <Setter Property="Margin" Value="0" />
+                        </Style>
+                        <Style Selector="Button.open i|Icon">
+                            <Setter Property="Margin" Value="0,0,5,0"></Setter>
+                        </Style>
+                        <Style Selector="Button.open TextBlock">
+                            <Setter Property="Margin" Value="5, 0, 0, 0"></Setter>
+                        </Style>
+                        <Style Selector="Button.open Border">
+                            <Setter Property="BorderThickness" Value="1" />
+                            <Setter Property="BorderBrush" Value="{DynamicResource TextControlForeground}"></Setter>
+                        </Style>
+                    </Grid.Styles>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Margin="-10,0,0,0" FontSize="34" Text="Packet Logger" />
+
+                    <Button Grid.Row="1" Grid.Column="0"
+                            Classes="open"
+                            IsEnabled="{Binding !Loading}"
+                            Command="{Binding OpenFile}">
+                        <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                            <i:Icon HorizontalAlignment="Left" Value="mdi-file-document-outline" />
+                            <Border></Border>
+                            <TextBlock HorizontalAlignment="Right" Text="Open File" />
+                        </StackPanel>
+                    </Button>
+                    <Button Grid.Row="2" Grid.Column="0"
+                            Classes="open"
+                            IsEnabled="{Binding !Loading}"
+                            Command="{Binding OpenDummy}">
+                        <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                            <i:Icon HorizontalAlignment="Left" Value="mdi-file-document-plus-outline" />
+                            <Border></Border>
+                            <TextBlock HorizontalAlignment="Right" Text="Open Empty" />
+                        </StackPanel>
+                    </Button>
+
+                    <StackPanel Grid.Row="3" Grid.Column="0" Orientation="Vertical">
+                        <TextBlock FontSize="30" Margin="0,0,0,5" Text="Connect to NosTale process" />
+                        <DataGrid Margin="0,0,30,0" Items="{Binding Processes}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Character" Binding="{Binding CharacterString}" />
+                                <DataGridTextColumn Header="Process" Binding="{Binding ProcessString}" />
+                                <DataGridTemplateColumn Header="Connect">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="Connect" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="0" Grid.Column="1" FontSize="34" Margin="-10,0,0,0" Text="Packet Sender" />
+                    
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="To be implemented..." />
+                </Grid>
+            </Grid>
+        </Border>
 
         <ContentControl IsVisible="{Binding Loaded}" Content="{Binding  LogViewModel}" />
     </Grid>

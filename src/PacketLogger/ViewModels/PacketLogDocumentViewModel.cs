@@ -5,6 +5,7 @@
 //  Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Reactive;
@@ -15,6 +16,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Dock.Model.Mvvm.Controls;
+using PacketLogger.Models;
 using PacketLogger.Models.Packets;
 using ReactiveUI;
 
@@ -23,11 +25,15 @@ namespace PacketLogger.ViewModels;
 /// <inheritdoc />
 public class PacketLogDocumentViewModel : Document, INotifyPropertyChanged
 {
+    private readonly NostaleProcesses _processes;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="PacketLogDocumentViewModel"/> class.
     /// </summary>
-    public PacketLogDocumentViewModel()
+    /// <param name="processes">The NosTale processes collection.</param>
+    public PacketLogDocumentViewModel(NostaleProcesses processes)
     {
+        _processes = processes;
         OpenDummy = ReactiveCommand.CreateFromTask
         (
             () => Task.Run(() =>
@@ -72,6 +78,11 @@ public class PacketLogDocumentViewModel : Document, INotifyPropertyChanged
             }
         );
     }
+
+    /// <summary>
+    /// Gets the processes observable.
+    /// </summary>
+    public ObservableCollection<NostaleProcess> Processes => _processes.Processes;
 
     /// <summary>
     /// Gets or sets the name of the tab.

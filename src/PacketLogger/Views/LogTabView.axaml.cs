@@ -12,12 +12,12 @@ using PropertyChanged;
 namespace PacketLogger.Views;
 
 [DoNotNotify]
-public partial class LogTab : UserControl
+public partial class LogTabView : UserControl
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="LogTab"/> class.
+    /// Initializes a new instance of the <see cref="LogTabView"/> class.
     /// </summary>
-    public LogTab()
+    public LogTabView()
     {
         InitializeComponent();
     }
