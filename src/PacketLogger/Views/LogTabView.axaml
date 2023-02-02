@@ -41,14 +41,14 @@
                                 Recv
                             </TabItem.Header>
 
-                            <ContentControl DataContext="{Binding RecvFilter}" />
+                            <ContentControl Content="{Binding RecvFilter}" />
                         </TabItem>
                         <TabItem>
                             <TabItem.Header>
                                 Send
                             </TabItem.Header>
 
-                            <ContentControl DataContext="{Binding SendFilter}" />
+                            <ContentControl Content="{Binding SendFilter}" />
                         </TabItem>
                     </TabControl>
                 </Grid>
