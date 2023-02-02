@@ -25,7 +25,7 @@ namespace PacketLogger.ViewModels;
 public class DockFactory : Factory, IDisposable
 {
     private readonly StatefulRepository _repository;
-    private readonly NostaleProcesses _processes = new();
+    private readonly NostaleProcesses _processes;
     private readonly CommsInjector _injector;
 
     private IRootDock? _rootDock;
@@ -34,10 +34,12 @@ public class DockFactory : Factory, IDisposable
     /// <summary>
     /// Initializes a new instance of the <see cref="DockFactory"/> class.
     /// </summary>
+    /// <param name="processes">The nostale processes.</param>
     /// <param name="injector">The communications injector.</param>
     /// <param name="repository">The repository.</param>
-    public DockFactory(CommsInjector injector, StatefulRepository repository)
+    public DockFactory(NostaleProcesses processes, CommsInjector injector, StatefulRepository repository)
     {
+        _processes = processes;
         _repository = repository;
         _injector = injector;
     }

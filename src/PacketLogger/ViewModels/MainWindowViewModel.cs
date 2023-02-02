@@ -5,6 +5,7 @@
 //  Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -35,6 +36,7 @@ namespace PacketLogger.ViewModels;
 public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
 {
     private readonly DockFactory _factory;
+    private readonly NostaleProcesses _processes;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MainWindowViewModel"/> class.
@@ -44,6 +46,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         var services = new ServiceCollection()
             .AddLogging(b => b.ClearProviders().AddConsole())
             .AddSingleton<DockFactory>()
+            .AddSingleton<NostaleProcesses>()
             .AddNostaleCore()
             .AddStatefulInjector()
             .AddStatefulEntity<CommsPacketProvider>()
@@ -51,6 +54,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             .AddPacketResponder<PacketResponder>()
             .BuildServiceProvider();
 
+        _processes = services.GetRequiredService<NostaleProcesses>();
         var packetTypes = services.GetRequiredService<IPacketTypesRepository>();
 
         var result = packetTypes.AddDefaultPackets();
@@ -141,12 +145,20 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         OpenEmpty = ReactiveCommand.Create
             (() => _factory.CreateLoadedDocument(doc => doc.OpenDummy.Execute(Unit.Default)));
 
+        Connect = ReactiveCommand.Create<IList>
+            (process => _factory.CreateLoadedDocument(doc => doc.OpenProcess.Execute((NostaleProcess)process[0]!)));
+
         NewTab = ReactiveCommand.Create
             (() => _factory.DocumentDock.CreateDocument?.Execute(null));
 
         QuitApplication = ReactiveCommand.Create
             (() => (Application.Current?.ApplicationLifetime as IControlledApplicationLifetime)?.Shutdown());
     }
+
+    /// <summary>
+    /// Gets the nostale processes.
+    /// </summary>
+    public ObservableCollection<NostaleProcess> Processes => _processes.Processes;
 
     /// <summary>
     /// Gets or sets the layout.
@@ -177,6 +189,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     /// Gets the command that opens empty logger.
     /// </summary>
     public ReactiveCommand<Unit, Unit> OpenEmpty { get; }
+
+    /// <summary>
+    /// Gets the command that opens empty logger.
+    /// </summary>
+    public ReactiveCommand<IList, Unit> Connect { get; }
 
     /// <summary>
     /// Gets the command that opens a new tab.

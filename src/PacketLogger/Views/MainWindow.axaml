@@ -23,6 +23,15 @@
             <MenuItem Header="_File">
                 <MenuItem Header="_New Tab" Command="{Binding NewTab}"></MenuItem>
                 <MenuItem Header="_Open Empty" Command="{Binding OpenEmpty}" />
+                <MenuItem Header="_Connect..." Command="{Binding Connect}" Items="{Binding Processes}">
+                    <MenuItem.Styles>
+                        <Style Selector="MenuItem">
+                            <Setter Property="Header" Value="{Binding CharacterString}" />
+                            <Setter Property="Command" Value="{Binding Connect}" />
+                            <Setter Property="CommandParameter" Value="{Binding SelectedItems, RelativeSource={RelativeSource Self}}" />
+                        </Style>
+                    </MenuItem.Styles>
+                </MenuItem>
                 <MenuItem Header="_Open File..." Command="{Binding OpenFile}" />
                 <Separator />
                 <MenuItem Header="_Save Filtered As..." Command="{Binding SaveFiltered}" />
@@ -31,11 +40,11 @@
                 <MenuItem Header="Exit" Command="{Binding QuitApplication}" />
             </MenuItem>
             <MenuItem Header="_Tools">
-                <MenuItem Header="_Packet Sender"/>
-                <MenuItem Header="_Packet Analyzer"/>
+                <MenuItem Header="_Packet Sender" />
+                <MenuItem Header="_Packet Analyzer" />
             </MenuItem>
         </Menu>
-        
+
         <ExperimentalAcrylicBorder Grid.Row="0" Grid.Column="1" IsHitTestVisible="False">
             <ExperimentalAcrylicBorder.Material>
                 <ExperimentalAcrylicMaterial
