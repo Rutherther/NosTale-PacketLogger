@@ -1,5 +1,5 @@
 //
-//  LogFilterTab.axaml.cs
+//  LogFilterTabView.axaml.cs
 //
 //  Copyright (c) František Boháček. All rights reserved.
 //  Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -14,12 +14,12 @@ using PropertyChanged;
 namespace PacketLogger.Views;
 
 [DoNotNotify]
-public partial class LogFilterTab : UserControl
+public partial class LogFilterTabView : UserControl
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="LogFilterTab"/> class.
+    /// Initializes a new instance of the <see cref="LogFilterTabView"/> class.
     /// </summary>
-    public LogFilterTab()
+    public LogFilterTabView()
     {
         InitializeComponent();
         this.FindControl<ComboBox>("FilterType").Items = Enum.GetValues<FilterCreator.FilterType>();

@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:views="clr-namespace:PacketLogger.Views"
+             xmlns:viewModels="clr-namespace:PacketLogger.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PacketLogger.Views.PacketLogDocumentView">
+    <Design.DataContext>
+        <viewModels:PacketLogDocumentViewModel />
+    </Design.DataContext>
+    <Grid>
+        <Grid IsVisible="{Binding !Loaded}">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Button Content="Open File" IsEnabled="{Binding !Loading}" Command="{Binding OpenFile}"></Button>
+                <Button Content="Open Dummy" IsEnabled="{Binding !Loading}" Command="{Binding OpenDummy}"></Button>
+            </StackPanel>
+        </Grid>
+
+        <ContentControl IsVisible="{Binding Loaded}" Content="{Binding  LogViewModel}" />
+    </Grid>
+</UserControl>

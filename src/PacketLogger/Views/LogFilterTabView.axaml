@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:PacketLogger.ViewModels"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
-             x:Class="PacketLogger.Views.LogFilterTab">
+             x:Class="PacketLogger.Views.LogFilterTabView">
     <Design.DataContext>
         <vm:LogFilterTabViewModel />
     </Design.DataContext>

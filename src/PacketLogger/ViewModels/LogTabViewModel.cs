@@ -29,8 +29,11 @@ public class LogTabViewModel : ViewModelBase, IDisposable
     /// <summary>
     /// Initializes a new instance of the <see cref="LogTabViewModel"/> class.
     /// </summary>
-    public LogTabViewModel()
+    /// <param name="packetProvider">The packet provider.</param>
+    public LogTabViewModel(IPacketProvider packetProvider)
     {
+        Provider = packetProvider;
+
         var dynamicFilter = this.WhenValueChanged(@this => @this.CurrentFilter)
             .Select
             (
@@ -58,12 +61,12 @@ public class LogTabViewModel : ViewModelBase, IDisposable
 
         CopyPackets = ReactiveCommand.CreateFromObservable<IList, Unit>
         (
-            (l) => Observable.StartAsync
+            list => Observable.StartAsync
             (
                 async () =>
                 {
                     var clipboardString = string.Join
-                        ('\n', l.OfType<PacketInfo>().Select(x => x.PacketString));
+                        ('\n', list.OfType<PacketInfo>().Select(x => x.PacketString));
                     await Application.Current!.Clipboard!.SetTextAsync(clipboardString);
                 }
             )
@@ -123,7 +126,7 @@ public class LogTabViewModel : ViewModelBase, IDisposable
     /// <summary>
     /// Gets packet provider.
     /// </summary>
-    public IPacketProvider Provider { get; } = new DummyPacketProvider();
+    public IPacketProvider Provider { get; }
 
     /// <summary>
     /// Gets whether the pane is open.

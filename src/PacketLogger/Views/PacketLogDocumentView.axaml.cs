@@ -1,5 +1,5 @@
-﻿//
-//  LogTab.axaml.cs
+//
+//  PacketLogDocumentView.axaml.cs
 //
 //  Copyright (c) František Boháček. All rights reserved.
 //  Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -12,12 +12,12 @@ using PropertyChanged;
 namespace PacketLogger.Views;
 
 [DoNotNotify]
-public partial class LogTab : UserControl
+public partial class PacketLogDocumentView : UserControl
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="LogTab"/> class.
+    /// Initializes a new instance of the <see cref="PacketLogDocumentView"/> class.
     /// </summary>
-    public LogTab()
+    public PacketLogDocumentView()
     {
         InitializeComponent();
     }
