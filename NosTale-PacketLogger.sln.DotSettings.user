@@ -4,14 +4,14 @@
 &lt;/AssemblyExplorer&gt;</s:String>
 	<s:String x:Key="/Default/Environment/Hierarchy/Build/BuildTool/CustomBuildToolPath/@EntryValue">C:\Program Files\dotnet\sdk\7.0.101\MSBuild.dll</s:String>
 	<s:Int64 x:Key="/Default/Environment/Hierarchy/Build/BuildTool/MsbuildVersion/@EntryValue">1114112</s:Int64>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=2e7fd038_002Db931_002D47b3_002D8d51_002D789fad0fbf90/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="PacketFcTestSubpackets" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;xUnit::9BC56B40-64E3-4A8F-AD49-C52857A35026::net6.0::NosSmooth.Packets.Tests.Converters.Packets.InPacketConverterTests.DeserializesPlayerInCorrectly&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::9BC56B40-64E3-4A8F-AD49-C52857A35026::net6.0::NosSmooth.Packets.Tests.Converters.Packets.InPacketConverterTests.SerializesPlayerInCorrectly&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=2e7fd038_002Db931_002D47b3_002D8d51_002D789fad0fbf90/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="PacketFcTestSubpackets" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;xUnit::9BC56B40-64E3-4A8F-AD49-C52857A35026::net6.0::NosSmooth.Packets.Tests.Converters.Packets.InPacketConverterTests.DeserializesPlayerInCorrectly&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::9BC56B40-64E3-4A8F-AD49-C52857A35026::net6.0::NosSmooth.Packets.Tests.Converters.Packets.InPacketConverterTests.SerializesPlayerInCorrectly&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=7c63d857_002Da6c6_002D4af8_002Daddc_002D708763c73754/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="PacketFcTestSubpackets #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;Project Location="D:\Shared\Documents\my_projects\NosSmooth" Presentation="&amp;lt;Tests&amp;gt;" /&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=7c63d857_002Da6c6_002D4af8_002Daddc_002D708763c73754/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="PacketFcTestSubpackets #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Project Location="D:\Shared\Documents\my_projects\NosSmooth" Presentation="&amp;lt;Tests&amp;gt;" /&gt;
 &lt;/SessionState&gt;</s:String>
 	
 	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=19666500_002D4636_002D4400_002D8855_002D496317f4a7f7_0023NosSmooth_002EGame/@EntryIndexedValue">True</s:Boolean>
