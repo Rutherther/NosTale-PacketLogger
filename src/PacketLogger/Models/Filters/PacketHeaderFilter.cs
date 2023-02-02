@@ -17,6 +17,8 @@ namespace PacketLogger.Models.Filters;
 public class PacketHeaderFilter : IFilter
 {
     private readonly string _header;
+    private readonly string _headerFilter;
+    private readonly string _headerFilterReturn;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PacketHeaderFilter"/> class.
@@ -25,6 +27,8 @@ public class PacketHeaderFilter : IFilter
     public PacketHeaderFilter(string header)
     {
         _header = header.Trim();
+        _headerFilter = _header;
+        _headerFilterReturn = "#" + _header;
     }
 
     /// <inheritdoc />
@@ -33,22 +37,8 @@ public class PacketHeaderFilter : IFilter
     /// <inheritdoc/>
     public bool Match(PacketInfo packet)
     {
-        var packetString = packet.PacketString;
-
-        var split = ' ';
-        if (packetString.StartsWith('#'))
-        {
-            packetString = packetString.Substring(1);
-            split = '^';
-        }
-
-        var splitted = packetString.Split(split, 2);
-
-        if (splitted.Length >= 1)
-        {
-            return string.Compare(splitted[0], _header, StringComparison.OrdinalIgnoreCase) == 0;
-        }
-
-        return false;
+        return packet.PacketString.StartsWith
+            (_header, StringComparison.OrdinalIgnoreCase) || packet.PacketString.StartsWith
+            (_headerFilterReturn, StringComparison.OrdinalIgnoreCase);
     }
 }
