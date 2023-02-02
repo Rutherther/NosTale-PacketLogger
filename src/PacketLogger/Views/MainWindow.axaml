@@ -18,27 +18,35 @@
         <vm:MainWindowViewModel />
     </Design.DataContext>
 
-    <DockPanel>
-        <Panel IsHitTestVisible="False" DockPanel.Dock="Top">
-            <Menu>
-                <MenuItem Header="_File">
-                    <MenuItem Header="_Open File..." />
-                    <Separator />
-                    <MenuItem Header="_Save Filtered As..." />
-                    <MenuItem Header="Save All As..." />
-                    <Separator />
-                    <MenuItem Header="Exit" />
+    <Grid RowDefinitions="Auto,*" ColumnDefinitions="Auto, *">
+        <Menu Grid.Row="0" Grid.Column="0">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Open File..." />
+                <Separator />
+                <MenuItem Header="_Save Filtered As..." />
+                <MenuItem Header="Save All As..." />
+                <Separator />
+                <MenuItem Header="Exit" />
+            </MenuItem>
+            <MenuItem Header="_Tools">
+                <MenuItem Header="_Packet Sender">
+                    <MenuItem Header="_Test" />
                 </MenuItem>
-                <MenuItem Header="_Tools">
-                    <MenuItem Header="_Packet Sender">
-                        <MenuItem Header="_Test" />
-                    </MenuItem>
-                    <MenuItem Header="_Packet Analyzer"></MenuItem>
-                </MenuItem>
-            </Menu>
-        </Panel>
+                <MenuItem Header="_Packet Analyzer"></MenuItem>
+            </MenuItem>
+        </Menu>
+        
+        <ExperimentalAcrylicBorder Grid.Row="0" Grid.Column="1" IsHitTestVisible="False">
+            <ExperimentalAcrylicBorder.Material>
+                <ExperimentalAcrylicMaterial
+                    BackgroundSource="Digger"
+                    TintColor="Black"
+                    TintOpacity="1"
+                    MaterialOpacity="0.65" />
+            </ExperimentalAcrylicBorder.Material>
+        </ExperimentalAcrylicBorder>
 
-        <Grid RowDefinitions="*, 25">
+        <Grid Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" RowDefinitions="*, 25">
             <DockControl Grid.Row="0" Grid.Column="0" x:Name="DockControl" Layout="{Binding Layout}" Margin="4" />
             <Panel DataContext="{Binding Layout.ActiveDockable}"
                    Grid.Row="1" Grid.Column="0">
@@ -48,5 +56,5 @@
                            x:CompileBindings="True" />
             </Panel>
         </Grid>
-    </DockPanel>
+    </Grid>
 </Window>
