@@ -66,12 +66,12 @@ public class NostaleProcesses : IDisposable
 
     private async Task Refresh()
     {
-        var nosTaleProcesses = CommsInjector.FindNosTaleProcesses().ToArray();
+        var nosTaleProcesses = CommsInjector.FindNosTaleProcesses().Select(x => x.Id).ToArray();
         var toRemove = new List<NostaleProcess>();
 
         foreach (var currentProcess in Processes)
         {
-            if (nosTaleProcesses.All(x => x.Id != currentProcess.Process.Id))
+            if (nosTaleProcesses.All(x => x != currentProcess.Process.Id))
             {
                 toRemove.Add(currentProcess);
             }
@@ -88,11 +88,12 @@ public class NostaleProcesses : IDisposable
 
         foreach (var openProcess in nosTaleProcesses)
         {
-            if (Processes.All(x => x.Process.Id != openProcess.Id) && !_errorfulProcesses.Contains(openProcess.Id))
+            if (Processes.All(x => x.Process.Id != openProcess) && !_errorfulProcesses.Contains(openProcess))
             {
+                var process = Process.GetProcessById(openProcess);
                 NosBrowserManager nosBrowserManager = new NosBrowserManager
                 (
-                    openProcess,
+                    process,
                     new PlayerManagerOptions(),
                     new SceneManagerOptions(),
                     new PetManagerOptions(),
@@ -103,11 +104,11 @@ public class NostaleProcesses : IDisposable
                 if (result.IsSuccess)
                 {
                     RxApp.MainThreadScheduler.Schedule
-                        (() => Processes.Add(new NostaleProcess(openProcess, nosBrowserManager)));
+                        (() => Processes.Add(new NostaleProcess(process, nosBrowserManager)));
                 }
                 else
                 {
-                    _errorfulProcesses.Add(openProcess.Id);
+                    _errorfulProcesses.Add(openProcess);
                     Console.WriteLine(result.ToFullString());
                 }
             }
@@ -117,7 +118,7 @@ public class NostaleProcesses : IDisposable
 
         foreach (var errorfulProcess in _errorfulProcesses)
         {
-            if (nosTaleProcesses.All(x => x.Id != errorfulProcess))
+            if (nosTaleProcesses.All(x => x != errorfulProcess))
             {
                 errorfulToRemove.Add(errorfulProcess);
             }
