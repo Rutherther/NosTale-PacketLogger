@@ -7,6 +7,7 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
+using Dock.Model.Mvvm.Controls;
 using PacketLogger.ViewModels;
 
 namespace PacketLogger;
@@ -36,6 +37,6 @@ public class ViewLocator : IDataTemplate
     /// <inheritdoc />
     public bool Match(object? data)
     {
-        return data is ViewModelBase;
+        return data is ViewModelBase || data is Document;
     }
 }
