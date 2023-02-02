@@ -1,0 +1,99 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:PacketLogger.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PacketLogger.Views.LogTab"
+             xmlns:i="clr-namespace:Projektanker.Icons.Avalonia;assembly=Projektanker.Icons.Avalonia"
+             xmlns:converters="clr-namespace:PacketLogger.Converters"
+             xmlns:views="clr-namespace:PacketLogger.Views"
+             xmlns:packets="clr-namespace:PacketLogger.Models.Packets"
+             xmlns:packetLogger="clr-namespace:PacketLogger"
+             x:Name="UserControl">
+    <UserControl.Resources>
+        <converters:PacketSourceConverter x:Key="packetSourceConverter" />
+    </UserControl.Resources>
+    <Design.DataContext>
+        <vm:LogTabViewModel />
+    </Design.DataContext>
+    <SplitView IsPaneOpen="{Binding PaneOpen, Mode = TwoWay}" DisplayMode="CompactInline" PanePlacement="Right">
+        <SplitView.Pane>
+            <Grid ColumnDefinitions="*" RowDefinitions="0.8*,100" Margin="10">
+                <Grid Grid.Row="0" RowDefinitions="30,*">
+                    <Grid Grid.Row="0" Grid.Column="0" ColumnDefinitions="24, *">
+                        <Button Margin="0,1,0,0" VerticalContentAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch" Width="22" Height="22"
+                                Command="{Binding TogglePane}">
+                            <Grid>
+                                <i:Icon Value="mdi-menu-left" Height="22" Width="22" Margin="0,0,2,0"
+                                        IsVisible="{Binding !PaneOpen}" />
+                                <i:Icon Value="mdi-menu-right" Height="22" Width="22" IsVisible="{Binding PaneOpen}" />
+                            </Grid>
+                        </Button>
+                        <TextBlock VerticalAlignment="Center" Grid.Column="1" FontSize="30" Text="Filter"
+                                   Margin="5,0,0,0" />
+                    </Grid>
+
+                    <TabControl Grid.Row="1" Margin="0" Padding="0">
+                        <TabItem>
+                            <TabItem.Header>
+                                Recv
+                            </TabItem.Header>
+
+                            <views:LogFilterTab DataContext="{Binding RecvFilter}" />
+                        </TabItem>
+                        <TabItem>
+                            <TabItem.Header>
+                                Send
+                            </TabItem.Header>
+
+                            <views:LogFilterTab DataContext="{Binding SendFilter}" />
+                        </TabItem>
+                    </TabControl>
+                </Grid>
+
+                <Grid Grid.Row="1" RowDefinitions="40,40" ColumnDefinitions="140,140">
+                    <CheckBox Grid.Row="0" Grid.Column="0" Content="Log received" IsChecked="{Binding LogReceived}" />
+                    <CheckBox Grid.Row="0" Grid.Column="1" Content="Log sent" IsChecked="{Binding LogSent}" />
+                    <CheckBox Grid.Row="1" Grid.Column="0" Content="Scroll" IsChecked="{Binding Scroll}" />
+                    <Button Grid.Row="1" Grid.Column="1" Content="Clear" HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center" Command="{Binding Clear}" />
+                </Grid>
+            </Grid>
+        </SplitView.Pane>
+
+        <DataGrid Items="{Binding FilteredPackets}" IsReadOnly="True" CanUserSortColumns="False"
+                  x:Name="PacketsLog"
+                  CanUserReorderColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Time" Binding="{Binding Date, StringFormat = {}{0:HH:mm:ss}}"
+                                    ClipboardContentBinding="{Binding ElementName=UserControl, Path= DataContext.Empty}"
+                                    Width="90" />
+                <DataGridTextColumn Header="Source"
+                                    Binding="{Binding Source, Converter = {StaticResource packetSourceConverter}}"
+                                    ClipboardContentBinding="{Binding ElementName=UserControl, Path= DataContext.Empty}"
+                                    Width="85" />
+                <DataGridTemplateColumn Header="Packet"
+                                        ClipboardContentBinding="{Binding PacketString}" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border Margin="5,0,0,0" ToolTip.Tip="{Binding PacketString}">
+                                <TextBlock VerticalAlignment="Center" Text="{Binding PacketString}"
+                                           TextTrimming="CharacterEllipsis">
+                                </TextBlock>
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+            <DataGrid.ContextMenu>
+                <ContextMenu Name="PacketMenu">
+                    <MenuItem Header="Copy packets" Command="{Binding CopyPackets}"
+                              CommandParameter="{Binding ElementName=PacketsLog, Path=SelectedItems}" IsEnabled="True">
+                    </MenuItem>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+        </DataGrid>
+    </SplitView>
+</UserControl>
