@@ -74,8 +74,7 @@ public class LogTabViewModel : ViewModelBase, IDisposable
                 {
                     if (Scroll && change.EventArgs.NewItems is not null)
                     {
-                        var last = FilteredPackets[^1];
-                        RxApp.MainThreadScheduler.Schedule(DateTimeOffset.Now.AddMilliseconds(1), () => SelectedPacket = last);
+                        RxApp.MainThreadScheduler.Schedule(DateTimeOffset.Now.AddMilliseconds(100), () => SelectedPacket = FilteredPackets[^1]);
                     }
                 }
             )
