@@ -7,6 +7,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
@@ -72,6 +73,7 @@ public class PacketLogDocumentViewModel : Document, INotifyPropertyChanged
                     return;
                 }
 
+                Title = Path.GetFileName(path);
                 LogViewModel = new LogTabViewModel(provider);
                 Loaded = true;
                 Loading = false;
