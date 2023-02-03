@@ -10,9 +10,11 @@ using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using DynamicData;
+using DynamicData.Binding;
 using NosSmooth.Comms.Local;
 using NosSmooth.Core.Packets;
 using NosSmooth.PacketSerializer.Abstractions.Attributes;
+using ReactiveUI;
 using Remora.Results;
 
 namespace PacketLogger.Models.Packets;
@@ -20,26 +22,37 @@ namespace PacketLogger.Models.Packets;
 /// <summary>
 /// A packet provider using a connection to a nostale client.
 /// </summary>
-public class CommsPacketProvider : IPacketProvider
+public class CommsPacketProvider : ReactiveObject, IPacketProvider
 {
+    private readonly IDisposable _cleanUp;
+    private readonly NostaleProcess _process;
     private readonly Comms _comms;
     private long _currentIndex;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CommsPacketProvider"/> class.
     /// </summary>
+    /// <param name="process">The process.</param>
     /// <param name="comms">The comms.</param>
-    public CommsPacketProvider(Comms comms)
+    public CommsPacketProvider(NostaleProcess process, Comms comms)
     {
+        _process = process;
         _comms = comms;
         Packets = new SourceList<PacketInfo>();
+        _cleanUp = process.WhenPropertyChanged(x => x.CharacterString)
+            .Subscribe
+            (
+                _ => this.RaisePropertyChanged(nameof(Name))
+            );
     }
 
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <inheritdoc />
-    public string Name => "TODO";
+    public string Name => (_process.BrowserManager.IsInGame
+        ? _process.BrowserManager.PlayerManager.Player.Name
+        : null) ?? $"Not in game ({_process.Process.Id})";
 
     /// <inheritdoc />
     public bool IsOpen => _comms.Connection.Connection.State == ConnectionState.Open;
