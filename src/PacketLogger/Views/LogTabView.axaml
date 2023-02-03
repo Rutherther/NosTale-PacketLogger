@@ -63,39 +63,30 @@
             </Grid>
         </SplitView.Pane>
 
-        <DataGrid Items="{Binding FilteredPackets}" IsReadOnly="True" CanUserSortColumns="False"
-                  x:Name="PacketsLog"
-                  SelectedItem="{Binding SelectedPacket, Mode=TwoWay}"
-                  SelectionChanged="PacketsLog_OnSelectionChanged"
-                  CanUserReorderColumns="False">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Time" Binding="{Binding Date, StringFormat = {}{0:HH:mm:ss}}"
-                                    ClipboardContentBinding="{Binding ElementName=UserControl, Path= DataContext.Empty}"
-                                    Width="90" />
-                <DataGridTextColumn Header="Source"
-                                    Binding="{Binding Source, Converter = {StaticResource packetSourceConverter}}"
-                                    ClipboardContentBinding="{Binding ElementName=UserControl, Path= DataContext.Empty}"
-                                    Width="85" />
-                <DataGridTemplateColumn Header="Packet"
-                                        ClipboardContentBinding="{Binding PacketString}" Width="*">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Border Margin="5,0,0,0" ToolTip.Tip="{Binding PacketString}">
-                                <TextBlock VerticalAlignment="Center" Text="{Binding PacketString}"
-                                           TextTrimming="CharacterEllipsis">
-                                </TextBlock>
-                            </Border>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-            <DataGrid.ContextMenu>
+        <ListBox Items="{Binding FilteredPackets}"
+                 x:Name="PacketsLog"
+                 SelectedItem="{Binding SelectedPacket, Mode=TwoWay}"
+                 SelectionChanged="PacketsLog_OnSelectionChanged">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Width="90" Text="{Binding Date, StringFormat = {}{0:HH:mm:ss}}" />
+                        <TextBlock Width="85" Text="{Binding Source, Converter = {StaticResource packetSourceConverter}}"></TextBlock>
+                        <Border Margin="5,0,0,0" ToolTip.Tip="{Binding PacketString}">
+                            <TextBlock VerticalAlignment="Center" Text="{Binding PacketString}"
+                                       TextTrimming="CharacterEllipsis">
+                            </TextBlock>
+                        </Border>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+            <ListBox.ContextMenu>
                 <ContextMenu Name="PacketMenu">
                     <MenuItem Header="Copy packets" Command="{Binding CopyPackets}"
                               CommandParameter="{Binding ElementName=PacketsLog, Path=SelectedItems}" IsEnabled="True">
                     </MenuItem>
                 </ContextMenu>
-            </DataGrid.ContextMenu>
-        </DataGrid>
+            </ListBox.ContextMenu>
+        </ListBox>
     </SplitView>
 </UserControl>
