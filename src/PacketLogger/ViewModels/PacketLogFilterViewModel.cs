@@ -32,7 +32,13 @@ public class PacketLogFilterViewModel : ViewModelBase, IDisposable
                 var selected = SelectedFilter;
                 if (selected is not null)
                 {
-                    SelectedFilter = null;
+                    var selectedIndex = Filters.IndexOf(selected);
+                    SelectedFilter = Filters.Count > selectedIndex + 1 ? Filters[selectedIndex + 1] : null;
+                    if (SelectedFilter is null && selectedIndex > 0)
+                    {
+                        SelectedFilter = Filters[selectedIndex - 1];
+                    }
+
                     Filters.Remove(selected);
                 }
             }
@@ -44,8 +50,10 @@ public class PacketLogFilterViewModel : ViewModelBase, IDisposable
             {
                 if (!string.IsNullOrEmpty(NewFilter))
                 {
-                    Filters.Add(new FilterCreator.FilterData(NewFilterType, NewFilter));
+                    var newFilter = new FilterCreator.FilterData(NewFilterType, NewFilter);
+                    Filters.Add(newFilter);
                     NewFilter = string.Empty;
+                    SelectedFilter = newFilter;
                 }
             }
         );
