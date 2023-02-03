@@ -24,9 +24,13 @@
             </DataGrid.Columns>
         </DataGrid>
         
-        <RadioButton Grid.Row="1" Grid.Column="0" Content="Whitelist" GroupName="WlBl"></RadioButton>
-        <RadioButton Grid.Row="1" Grid.Column="1" Content="Blacklist" GroupName="WlBl" IsChecked="{Binding !Whitelist}"></RadioButton>
- 
+        <CheckBox Grid.Row="1" Grid.Column="0" Content="Filter active" IsChecked="{Binding Active}" />
+
+        <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="*,*">
+            <RadioButton Grid.Column="0" Content="Wl" GroupName="WlBl"></RadioButton>
+            <RadioButton Grid.Column="1" Content="Bl" GroupName="WlBl" IsChecked="{Binding !Whitelist}"></RadioButton>
+        </Grid>
+
         <TextBox VerticalAlignment="Center" Margin="0, 0, 5, 0" Height="30" Grid.Row="2" Grid.Column="0"
                  Text="{Binding NewFilter}">
         </TextBox>

@@ -114,14 +114,14 @@ public class PacketLogViewModel : ViewModelBase, IDisposable
 
         SendFilter.PropertyChanged += (s, e) =>
         {
-            if (e.PropertyName == "Whitelist")
+            if (e.PropertyName is "Whitelist" or "Active")
             {
                 CreateSendRecv();
             }
         };
         RecvFilter.PropertyChanged += (s, e) =>
         {
-            if (e.PropertyName == "Whitelist")
+            if (e.PropertyName is "Whitelist" or "Active")
             {
                 CreateSendRecv();
             }
@@ -236,6 +236,11 @@ public class PacketLogViewModel : ViewModelBase, IDisposable
 
     private IFilter CreateCompound(PacketLogFilterViewModel packetLogFilter)
     {
+        if (!packetLogFilter.Active)
+        {
+            return new CompoundFilter(true);
+        }
+
         List<IFilter> filters = new List<IFilter>();
 
         foreach (var filter in packetLogFilter.Filters)

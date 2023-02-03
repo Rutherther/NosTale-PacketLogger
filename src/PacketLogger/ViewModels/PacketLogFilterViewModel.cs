@@ -94,6 +94,11 @@ public class PacketLogFilterViewModel : ViewModelBase, IDisposable
     /// </summary>
     public ReactiveCommand<Unit, Unit> AddNew { get; }
 
+    /// <summary>
+    /// Gets or sets whether the filter is active.
+    /// </summary>
+    public bool Active { get; set; } = true;
+
     /// <inheritdoc />
     public void Dispose()
     {
