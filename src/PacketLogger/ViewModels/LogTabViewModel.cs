@@ -64,23 +64,15 @@ public class LogTabViewModel : ViewModelBase, IDisposable
             .Bind(out _packets)
             .ObserveOn(RxApp.MainThreadScheduler)
             .DisposeMany()
-            .Subscribe();
-
-        var scrollSubscription = FilteredPackets.ObserveCollectionChanges()
-            .ObserveOn(RxApp.MainThreadScheduler)
-            .Do
-            (
-                change =>
+            .Subscribe(_ =>
+            {
+                if (Scroll)
                 {
-                    if (Scroll && change.EventArgs.NewItems is not null)
-                    {
-                        RxApp.MainThreadScheduler.Schedule(DateTimeOffset.Now.AddMilliseconds(100), () => SelectedPacket = FilteredPackets[^1]);
-                    }
+                    RxApp.MainThreadScheduler.Schedule(DateTimeOffset.Now.AddMilliseconds(100), () => SelectedPacket = FilteredPackets[^1]);
                 }
-            )
-            .Subscribe();
+            });
 
-        _cleanUp = new CompositeDisposable(scrollSubscription, packetsSubscription);
+        _cleanUp = packetsSubscription;
         CopyPackets = ReactiveCommand.CreateFromObservable<IList, Unit>
         (
             list => Observable.StartAsync
