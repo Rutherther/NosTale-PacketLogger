@@ -64,13 +64,24 @@ public class PacketLogViewModel : ViewModelBase, IDisposable
             .Bind(out _packets)
             .ObserveOn(RxApp.MainThreadScheduler)
             .DisposeMany()
-            .Subscribe(_ =>
-            {
-                if (Scroll)
+            .Subscribe
+            (
+                _ =>
                 {
-                    RxApp.MainThreadScheduler.Schedule(DateTimeOffset.Now.AddMilliseconds(100), () => SelectedPacket = FilteredPackets[^1]);
+                    if (Scroll)
+                    {
+                        RxApp.MainThreadScheduler.Schedule
+                            (DateTimeOffset.Now.AddMilliseconds(100), () =>
+                                {
+                                    if (FilteredPackets.Count > 0)
+                                    {
+                                        SelectedPacket = FilteredPackets[^1];
+                                    }
+                                }
+                            );
+                    }
                 }
-            });
+            );
 
         _cleanUp = packetsSubscription;
         CopyPackets = ReactiveCommand.CreateFromObservable<IList, Unit>
@@ -229,6 +240,8 @@ public class PacketLogViewModel : ViewModelBase, IDisposable
         TogglePane.Dispose();
         CopyPackets.Dispose();
         Clear.Dispose();
+        Provider.Dispose();
+        (Provider as CommsPacketProvider)?.CustomDispose();
         _cleanUp.Dispose();
 
         SendFilter.Dispose();

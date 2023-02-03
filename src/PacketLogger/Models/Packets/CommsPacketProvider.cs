@@ -109,6 +109,15 @@ public class CommsPacketProvider : ReactiveObject, IPacketProvider
     /// <inheritdoc />
     public void Dispose()
     {
+    }
+
+    /// <summary>
+    /// A dispose used instead of <see cref="Dispose"/>
+    /// to prevent the service provider disposing.
+    /// </summary>
+    public void CustomDispose()
+    {
+        _cleanUp.Dispose();
         Packets.Dispose();
     }
 }
