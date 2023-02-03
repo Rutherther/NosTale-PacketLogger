@@ -89,4 +89,10 @@ public class CommsPacketProvider : IPacketSender
             Packets.Add(new PacketInfo(index, DateTime.Now, packetArgs.Source, packetArgs.PacketString));
         }
     }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Packets.Dispose();
+    }
 }

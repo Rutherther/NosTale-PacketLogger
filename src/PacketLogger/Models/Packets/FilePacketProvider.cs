@@ -119,4 +119,10 @@ public class FilePacketProvider : IPacketProvider
 
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <inheritdoc/>
+    public void Dispose()
+    {
+        _packets?.Dispose();
+    }
 }

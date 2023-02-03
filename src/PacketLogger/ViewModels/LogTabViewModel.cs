@@ -227,6 +227,11 @@ public class LogTabViewModel : ViewModelBase, IDisposable
     public void Dispose()
     {
         TogglePane.Dispose();
+        CopyPackets.Dispose();
+        Clear.Dispose();
         _cleanUp.Dispose();
+
+        SendFilter.Dispose();
+        RecvFilter.Dispose();
     }
 }

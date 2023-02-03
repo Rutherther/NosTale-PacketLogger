@@ -49,7 +49,6 @@ public class LogFilterTabViewModel : ViewModelBase, IDisposable
                 }
             }
         );
-
     }
 
     /// <summary>

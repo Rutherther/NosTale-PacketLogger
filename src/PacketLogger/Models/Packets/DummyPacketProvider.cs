@@ -70,13 +70,13 @@ public class DummyPacketProvider : IPacketProvider, IDisposable
     /// <inheritdoc />
     public Task<Result> Open()
     {
-        throw new System.NotImplementedException();
+        return Task.FromResult(Result.FromSuccess());
     }
 
     /// <inheritdoc />
     public Task<Result> Close()
     {
-        throw new System.NotImplementedException();
+        return Task.FromResult(Result.FromSuccess());
     }
 
     /// <inheritdoc />

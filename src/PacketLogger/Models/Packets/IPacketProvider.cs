@@ -4,6 +4,7 @@
 //  Copyright (c) František Boháček. All rights reserved.
 //  Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -17,7 +18,7 @@ namespace PacketLogger.Models.Packets;
 /// <summary>
 /// Provides packets from some kind of a source.
 /// </summary>
-public interface IPacketProvider : INotifyPropertyChanged
+public interface IPacketProvider : INotifyPropertyChanged, IDisposable
 {
     /// <summary>
     /// Gets whether <see cref="Open"/> was called and successfully finished.

@@ -31,7 +31,7 @@ using ReactiveUI;
 namespace PacketLogger.ViewModels;
 
 /// <inheritdoc />
-public class PacketLogDocumentViewModel : Document, INotifyPropertyChanged
+public class PacketLogDocumentViewModel : Document, INotifyPropertyChanged, IDisposable
 {
     private readonly CommsInjector _injector;
     private readonly NostaleProcesses _processes;
@@ -68,7 +68,7 @@ public class PacketLogDocumentViewModel : Document, INotifyPropertyChanged
             {
                 var mainWindow = (App.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)
                     ?.MainWindow;
-                var result = await new OpenFileDialog()
+                var result = await new OpenFileDialog
                 {
                     AllowMultiple = false,
                     InitialFileName = Assembly.GetEntryAssembly()?.GetModules().FirstOrDefault()?.FullyQualifiedName
@@ -184,4 +184,23 @@ public class PacketLogDocumentViewModel : Document, INotifyPropertyChanged
     /// Gets the command for opening a process / connecting to a process.
     /// </summary>
     public ReactiveCommand<NostaleProcess, Unit> OpenProcess { get; }
+
+    /// <inheritdoc />
+    public override bool OnClose()
+    {
+        LogViewModel?.Provider.Close().GetAwaiter().GetResult();
+        Dispose();
+        return base.OnClose();
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        _ctSource.Cancel();
+        _ctSource.Dispose();
+        LogViewModel?.Dispose();
+        OpenDummy.Dispose();
+        OpenFile.Dispose();
+        OpenProcess.Dispose();
+    }
 }

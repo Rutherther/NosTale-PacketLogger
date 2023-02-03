@@ -44,6 +44,12 @@ public class DockFactory : Factory, IDisposable
         _injector = injector;
     }
 
+    /// <inheritdoc />
+    public override IDockWindow CreateDockWindow()
+    {
+        return base.CreateDockWindow();
+    }
+
     /// <summary>
     /// Gets the document dock.
     /// </summary>
