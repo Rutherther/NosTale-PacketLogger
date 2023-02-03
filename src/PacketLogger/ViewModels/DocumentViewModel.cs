@@ -39,6 +39,7 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
     private readonly Action<DocumentViewModel> _onDocumentUnloaded;
     private CancellationTokenSource _ctSource;
     private IPacketProvider? _packetProvider;
+    private IDisposable? _cleanUp;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DocumentViewModel"/> class.
@@ -130,7 +131,7 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
                     return;
                 }
 
-                var provider = new CommsPacketProvider(connection);
+                var provider = new CommsPacketProvider(process, connection);
                 _packetProvider = provider;
                 repository.SetEntity<CommsPacketProvider>(connection.Client, provider);
 
@@ -145,7 +146,7 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
                     return;
                 }
 
-                process.WhenPropertyChanged(x => x.CharacterString)
+                _cleanUp = process.WhenPropertyChanged(x => x.CharacterString)
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Do
                     (
@@ -246,6 +247,7 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
     /// <inheritdoc />
     public void Dispose()
     {
+        _cleanUp?.Dispose();
         _ctSource.Cancel();
         _ctSource.Dispose();
         (NestedViewModel as IDisposable)?.Dispose();
