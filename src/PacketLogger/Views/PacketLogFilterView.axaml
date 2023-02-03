@@ -4,9 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:PacketLogger.ViewModels"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
-             x:Class="PacketLogger.Views.LogFilterTabView">
+             x:Class="PacketLogger.Views.PacketLogFilterView">
     <Design.DataContext>
-        <vm:LogFilterTabViewModel />
+        <vm:PacketLogFilterViewModel />
     </Design.DataContext>
 
     <Grid ColumnDefinitions="*,*" RowDefinitions="*, 40, 40, 40">

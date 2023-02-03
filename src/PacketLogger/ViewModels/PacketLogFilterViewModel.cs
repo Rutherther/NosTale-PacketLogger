@@ -1,5 +1,5 @@
 //
-//  LogFilterTabViewModel.cs
+//  PacketLogFilterViewModel.cs
 //
 //  Copyright (c) František Boháček. All rights reserved.
 //  Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -17,12 +17,12 @@ using ReactiveUI;
 namespace PacketLogger.ViewModels;
 
 /// <inheritdoc />
-public class LogFilterTabViewModel : ViewModelBase, IDisposable
+public class PacketLogFilterViewModel : ViewModelBase, IDisposable
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="LogFilterTabViewModel"/> class.
+    /// Initializes a new instance of the <see cref="PacketLogFilterViewModel"/> class.
     /// </summary>
-    public LogFilterTabViewModel()
+    public PacketLogFilterViewModel()
     {
         Filters = new ObservableCollection<FilterCreator.FilterData>();
         RemoveCurrent = ReactiveCommand.Create

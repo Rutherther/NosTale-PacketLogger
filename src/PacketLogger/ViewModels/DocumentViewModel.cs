@@ -1,5 +1,5 @@
 //
-//  PacketLogDocumentViewModel.cs
+//  DocumentViewModel.cs
 //
 //  Copyright (c) František Boháček. All rights reserved.
 //  Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -31,23 +31,39 @@ using ReactiveUI;
 namespace PacketLogger.ViewModels;
 
 /// <inheritdoc />
-public class PacketLogDocumentViewModel : Document, INotifyPropertyChanged, IDisposable
+public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
 {
     private readonly CommsInjector _injector;
+    private readonly ObservableCollection<IPacketProvider> _providers;
     private readonly NostaleProcesses _processes;
+    private readonly Action<DocumentViewModel> _onDocumentUnloaded;
     private CancellationTokenSource _ctSource;
+    private IPacketProvider? _packetProvider;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="PacketLogDocumentViewModel"/> class.
+    /// Initializes a new instance of the <see cref="DocumentViewModel"/> class.
     /// </summary>
     /// <param name="injector">The injector.</param>
     /// <param name="repository">The repository.</param>
+    /// <param name="providers">The providers.</param>
     /// <param name="processes">The NosTale processes collection.</param>
-    public PacketLogDocumentViewModel(CommsInjector injector, StatefulRepository repository, NostaleProcesses processes)
+    /// <param name="onDocumentLoaded">The action to call on loaded.</param>
+    /// <param name="onDocumentUnloaded">The action to call on document unloaded/closed.</param>
+    public DocumentViewModel
+    (
+        CommsInjector injector,
+        StatefulRepository repository,
+        ObservableCollection<IPacketProvider> providers,
+        NostaleProcesses processes,
+        Action<DocumentViewModel> onDocumentLoaded,
+        Action<DocumentViewModel> onDocumentUnloaded
+    )
     {
         _ctSource = new CancellationTokenSource();
         _injector = injector;
+        _providers = providers;
         _processes = processes;
+        _onDocumentUnloaded = onDocumentUnloaded;
         OpenDummy = ReactiveCommand.CreateFromTask
         (
             () => Task.Run
@@ -56,8 +72,10 @@ public class PacketLogDocumentViewModel : Document, INotifyPropertyChanged, IDis
                 {
                     Loading = true;
                     Name = "Dummy";
-                    LogViewModel = new LogTabViewModel(new DummyPacketProvider());
+                    _packetProvider = new DummyPacketProvider();
+                    NestedViewModel = new PacketLogViewModel(_packetProvider);
                     Loaded = true;
+                    onDocumentLoaded(this);
                 }
             )
         );
@@ -82,6 +100,7 @@ public class PacketLogDocumentViewModel : Document, INotifyPropertyChanged, IDis
 
                 var path = result[0];
                 var provider = new FilePacketProvider(path);
+                _packetProvider = provider;
 
                 var openResult = await provider.Open();
                 if (!openResult.IsSuccess)
@@ -91,9 +110,10 @@ public class PacketLogDocumentViewModel : Document, INotifyPropertyChanged, IDis
                 }
 
                 Title = Path.GetFileName(path);
-                LogViewModel = new LogTabViewModel(provider);
+                NestedViewModel = new PacketLogViewModel(provider);
                 Loaded = true;
                 Loading = false;
+                onDocumentLoaded(this);
             }
         );
 
@@ -111,6 +131,7 @@ public class PacketLogDocumentViewModel : Document, INotifyPropertyChanged, IDis
                 }
 
                 var provider = new CommsPacketProvider(connection);
+                _packetProvider = provider;
                 repository.SetEntity<CommsPacketProvider>(connection.Client, provider);
 
                 var contractResult = await connection.Connection.ContractHanshake
@@ -137,18 +158,41 @@ public class PacketLogDocumentViewModel : Document, INotifyPropertyChanged, IDis
                     )
                     .Subscribe();
 
-                LogViewModel = new LogTabViewModel(provider);
+                NestedViewModel = new PacketLogViewModel(provider);
                 Title = handshakeResponse.CharacterName ?? $"Not in game ({process.Process.Id})";
                 Loading = false;
                 Loaded = true;
+                onDocumentLoaded(this);
             }
         );
+
+        OpenSender = ReactiveCommand.Create<IPacketProvider>
+            (
+                provider =>
+                {
+                    Loading = true;
+                    NestedViewModel = new PacketSenderViewModel(provider);
+                    Title = $"Sender ({provider.Name})";
+                    Loaded = true;
+                    Loading = false;
+                }
+            );
     }
 
     /// <summary>
     /// Gets the processes observable.
     /// </summary>
     public ObservableCollection<NostaleProcess> Processes => _processes.Processes;
+
+    /// <summary>
+    /// Gets packet provider.
+    /// </summary>
+    public IPacketProvider? Provider => _packetProvider;
+
+    /// <summary>
+    /// Gets the open providers.
+    /// </summary>
+    public ObservableCollection<IPacketProvider> Providers => _providers;
 
     /// <summary>
     /// Gets or sets the name of the tab.
@@ -168,7 +212,12 @@ public class PacketLogDocumentViewModel : Document, INotifyPropertyChanged, IDis
     /// <summary>
     /// Gets the log tab view model.
     /// </summary>
-    public LogTabViewModel? LogViewModel { get; private set; }
+    public ViewModelBase? NestedViewModel { get; private set; }
+
+    /// <summary>
+    /// Gets command for opening a dummy.
+    /// </summary>
+    public ReactiveCommand<IPacketProvider, Unit> OpenSender { get; }
 
     /// <summary>
     /// Gets command for opening a dummy.
@@ -188,7 +237,8 @@ public class PacketLogDocumentViewModel : Document, INotifyPropertyChanged, IDis
     /// <inheritdoc />
     public override bool OnClose()
     {
-        LogViewModel?.Provider.Close().GetAwaiter().GetResult();
+        _onDocumentUnloaded(this);
+        _packetProvider?.Close().GetAwaiter().GetResult();
         Dispose();
         return base.OnClose();
     }
@@ -198,9 +248,10 @@ public class PacketLogDocumentViewModel : Document, INotifyPropertyChanged, IDis
     {
         _ctSource.Cancel();
         _ctSource.Dispose();
-        LogViewModel?.Dispose();
+        (NestedViewModel as IDisposable)?.Dispose();
         OpenDummy.Dispose();
         OpenFile.Dispose();
         OpenProcess.Dispose();
+        OpenSender.Dispose();
     }
 }

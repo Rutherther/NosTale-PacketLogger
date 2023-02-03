@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:PacketLogger.ViewModels"
+             xmlns:converters="clr-namespace:PacketLogger.Converters"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PacketLogger.Views.PacketSendSubView">
+    <UserControl.Resources>
+        <converters:PacketSourceConverter x:Key="packetSourceConverter" />
+    </UserControl.Resources>
+    <Design.DataContext>
+        <viewModels:PacketSendSubViewModel />
+    </Design.DataContext>
+
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Right" Width="150">
+            <Button Content="{Binding Source, Converter= {StaticResource packetSourceConverter}}"
+                    Command="{Binding SendPackets}" />
+            <TextBlock Text="Repeat delay" />
+            <StackPanel>
+                <NumericUpDown Value="{Binding RepetitionDelay}" />
+                <TextBlock Text="ms" />
+            </StackPanel>
+            <Button Content="Start/Stop" Command="{Binding ToggleRepetetiveSend}" />
+        </StackPanel>
+
+        <TextBox Text="{Binding PacketsData}" AcceptsReturn="True" TextWrapping="NoWrap" Margin="0, 0, 20, 0" />
+    </DockPanel>
+</UserControl>

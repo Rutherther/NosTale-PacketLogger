@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:PacketLogger.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="PacketLogger.Views.LogTabView"
+             x:Class="PacketLogger.Views.PacketLogView"
              xmlns:i="clr-namespace:Projektanker.Icons.Avalonia;assembly=Projektanker.Icons.Avalonia"
              xmlns:converters="clr-namespace:PacketLogger.Converters"
              xmlns:views="clr-namespace:PacketLogger.Views"
@@ -15,7 +15,7 @@
         <converters:PacketSourceConverter x:Key="packetSourceConverter" />
     </UserControl.Resources>
     <Design.DataContext>
-        <vm:LogTabViewModel />
+        <vm:PacketLogViewModel />
     </Design.DataContext>
     <SplitView IsPaneOpen="{Binding PaneOpen, Mode = TwoWay}" DisplayMode="CompactInline" PanePlacement="Right">
         <SplitView.Pane>

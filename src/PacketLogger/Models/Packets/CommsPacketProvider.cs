@@ -20,7 +20,7 @@ namespace PacketLogger.Models.Packets;
 /// <summary>
 /// A packet provider using a connection to a nostale client.
 /// </summary>
-public class CommsPacketProvider : IPacketSender
+public class CommsPacketProvider : IPacketProvider
 {
     private readonly Comms _comms;
     private long _currentIndex;
@@ -37,6 +37,9 @@ public class CommsPacketProvider : IPacketSender
 
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <inheritdoc />
+    public string Name => "TODO";
 
     /// <inheritdoc />
     public bool IsOpen => _comms.Connection.Connection.State == ConnectionState.Open;

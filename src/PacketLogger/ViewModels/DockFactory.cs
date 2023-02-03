@@ -6,7 +6,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Reactive;
+using System.Reactive.Linq;
 using Dock.Avalonia.Controls;
 using Dock.Model.Controls;
 using Dock.Model.Core;
@@ -15,6 +17,8 @@ using Dock.Model.Mvvm.Controls;
 using NosSmooth.Comms.Local;
 using NosSmooth.Core.Stateful;
 using PacketLogger.Models;
+using PacketLogger.Models.Packets;
+using PacketLogger.Views;
 using ReactiveUI;
 
 namespace PacketLogger.ViewModels;
@@ -25,6 +29,7 @@ namespace PacketLogger.ViewModels;
 public class DockFactory : Factory, IDisposable
 {
     private readonly StatefulRepository _repository;
+    private readonly ObservableCollection<IPacketProvider> _providers;
     private readonly NostaleProcesses _processes;
     private readonly CommsInjector _injector;
 
@@ -34,20 +39,42 @@ public class DockFactory : Factory, IDisposable
     /// <summary>
     /// Initializes a new instance of the <see cref="DockFactory"/> class.
     /// </summary>
+    /// <param name="providers">The providers.</param>
     /// <param name="processes">The nostale processes.</param>
     /// <param name="injector">The communications injector.</param>
     /// <param name="repository">The repository.</param>
-    public DockFactory(NostaleProcesses processes, CommsInjector injector, StatefulRepository repository)
+    public DockFactory
+    (
+        ObservableCollection<IPacketProvider> providers,
+        NostaleProcesses processes,
+        CommsInjector injector,
+        StatefulRepository repository
+    )
     {
+        _providers = providers;
         _processes = processes;
         _repository = repository;
         _injector = injector;
     }
 
-    /// <inheritdoc />
-    public override IDockWindow CreateDockWindow()
+    /// <summary>
+    /// Document loaded event.
+    /// </summary>
+    public event Action<DocumentViewModel>? DocumentLoaded;
+
+    /// <summary>
+    /// Document closed event.
+    /// </summary>
+    public event Action<DocumentViewModel>? DocumentClosed;
+
+    private void OnDocumentLoaded(DocumentViewModel documentViewModel)
     {
-        return base.CreateDockWindow();
+        DocumentLoaded?.Invoke(documentViewModel);
+    }
+
+    private void OnDocumentClosed(DocumentViewModel documentViewModel)
+    {
+        DocumentClosed?.Invoke(documentViewModel);
     }
 
     /// <summary>
@@ -60,14 +87,22 @@ public class DockFactory : Factory, IDisposable
     /// Creaate and load a document.
     /// </summary>
     /// <param name="load">The function to use to load the document.</param>
-    public void CreateLoadedDocument(Func<PacketLogDocumentViewModel, IObservable<Unit>> load)
+    public void CreateLoadedDocument(Func<DocumentViewModel, IObservable<Unit>> load)
     {
         if (_documentDock is null)
         {
             return;
         }
 
-        var document = new PacketLogDocumentViewModel(_injector, _repository, _processes)
+        var document = new DocumentViewModel
+            (
+                _injector,
+                _repository,
+                _providers,
+                _processes,
+                OnDocumentLoaded,
+                OnDocumentClosed
+            )
             { Id = $"New tab", Title = $"New tab" };
 
         var observable = load(document);
@@ -101,7 +136,15 @@ public class DockFactory : Factory, IDisposable
                 }
 
                 var index = documentDock.VisibleDockables?.Count + 1;
-                var document = new PacketLogDocumentViewModel(_injector, _repository, _processes)
+                var document = new DocumentViewModel
+                    (
+                        _injector,
+                        _repository,
+                        _providers,
+                        _processes,
+                        OnDocumentLoaded,
+                        OnDocumentClosed
+                    )
                     { Id = $"New tab {index}", Title = $"New tab {index}" };
 
                 AddDockable(documentDock, document);
@@ -115,7 +158,15 @@ public class DockFactory : Factory, IDisposable
     /// <inheritdoc />
     public override IRootDock CreateLayout()
     {
-        var initialTab = new PacketLogDocumentViewModel(_injector, _repository, _processes)
+        var initialTab = new DocumentViewModel
+            (
+                _injector,
+                _repository,
+                _providers,
+                _processes,
+                OnDocumentLoaded,
+                OnDocumentClosed
+            )
             { Id = $"New tab", Title = $"New tab" };
         var documentDock = CreateDocumentDock();
         documentDock.IsCollapsable = false;

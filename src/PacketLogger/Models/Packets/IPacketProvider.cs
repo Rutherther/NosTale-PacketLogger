@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Threading;
 using System.Threading.Tasks;
 using DynamicData;
 using PacketLogger.Models.Filters;
@@ -20,6 +21,11 @@ namespace PacketLogger.Models.Packets;
 /// </summary>
 public interface IPacketProvider : INotifyPropertyChanged, IDisposable
 {
+    /// <summary>
+    /// Gets the name.
+    /// </summary>
+    public string Name { get; }
+
     /// <summary>
     /// Gets whether <see cref="Open"/> was called and successfully finished.
     /// </summary>
@@ -56,4 +62,20 @@ public interface IPacketProvider : INotifyPropertyChanged, IDisposable
     /// Clear all packets.
     /// </summary>
     public void Clear();
+
+    /// <summary>
+    /// Send the given packets.
+    /// </summary>
+    /// <param name="packetString">The packet to send.</param>
+    /// <param name="ct">The cancellation token used for cancelling the operation.</param>
+    /// <returns>A result that may or may not have succeeded.</returns>
+    Task<Result> SendPacket(string packetString, CancellationToken ct = default);
+
+    /// <summary>
+    /// Receive the given packet.
+    /// </summary>
+    /// <param name="packetString">The packet to send.</param>
+    /// <param name="ct">The cancellation token used for cancelling the operation.</param>
+    /// <returns>A result that may or may not have succeeded.</returns>
+    Task<Result> ReceivePacket(string packetString, CancellationToken ct = default);
 }

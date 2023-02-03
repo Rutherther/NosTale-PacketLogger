@@ -11,6 +11,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using DynamicData;
 using NosSmooth.PacketSerializer.Abstractions.Attributes;
@@ -26,6 +27,7 @@ public class FilePacketProvider : IPacketProvider
 {
     private readonly string _fileName;
     private SourceList<PacketInfo>? _packets;
+    private long _index = 0;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="FilePacketProvider"/> class.
@@ -35,6 +37,9 @@ public class FilePacketProvider : IPacketProvider
     {
         _fileName = fileName;
     }
+
+    /// <inheritdoc />
+    public string Name => Path.GetFileName(_fileName);
 
     /// <inheritdoc />
     public bool IsOpen => false;
@@ -66,7 +71,7 @@ public class FilePacketProvider : IPacketProvider
         }
 
         var packets = new SourceList<PacketInfo>();
-        var index = 0;
+        _index = 0;
         foreach (var line in await File.ReadAllLinesAsync(_fileName))
         {
             if (line.Length <= 1)
@@ -81,7 +86,7 @@ public class FilePacketProvider : IPacketProvider
                 (
                     new PacketInfo
                     (
-                        index++,
+                        _index++,
                         DateTime.Now,
                         splitted[0] == "[Recv]" ? PacketSource.Server : PacketSource.Client,
                         splitted[1]
@@ -94,7 +99,7 @@ public class FilePacketProvider : IPacketProvider
                 (
                     new PacketInfo
                     (
-                        index++,
+                        _index++,
                         DateTime.Parse(splitted[0].Trim('[', ']')),
                         splitted[1] == "[Recv]" ? PacketSource.Server : PacketSource.Client,
                         splitted[2]
@@ -115,6 +120,20 @@ public class FilePacketProvider : IPacketProvider
     public void Clear()
     {
         // Clearing packets from file does not make any sense...
+    }
+
+    /// <inheritdoc />
+    public Task<Result> SendPacket(string packetString, CancellationToken ct = default)
+    {
+        Packets.Add(new PacketInfo(_index++, DateTime.Now, PacketSource.Client, packetString));
+        return Task.FromResult(Result.FromSuccess());
+    }
+
+    /// <inheritdoc />
+    public Task<Result> ReceivePacket(string packetString, CancellationToken ct = default)
+    {
+        Packets.Add(new PacketInfo(_index++, DateTime.Now, PacketSource.Server, packetString));
+        return Task.FromResult(Result.FromSuccess());
     }
 
     /// <inheritdoc />

@@ -6,9 +6,9 @@
              xmlns:viewModels="clr-namespace:PacketLogger.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              xmlns:i="clr-namespace:Projektanker.Icons.Avalonia;assembly=Projektanker.Icons.Avalonia"
-             x:Class="PacketLogger.Views.PacketLogDocumentView">
+             x:Class="PacketLogger.Views.DocumentView">
     <Design.DataContext>
-        <viewModels:PacketLogDocumentViewModel />
+        <viewModels:DocumentViewModel />
     </Design.DataContext>
 
     <Grid>
@@ -82,11 +82,28 @@
 
                     <TextBlock Grid.Row="0" Grid.Column="1" FontSize="34" Margin="-10,0,0,0" Text="Packet Sender" />
 
-                    <TextBlock Grid.Row="1" Grid.Column="1" Text="To be implemented..." />
+                    <StackPanel Grid.Row="1" Grid.Column="1" Grid.RowSpan="3" Orientation="Vertical">
+                        <TextBlock FontSize="30" Margin="0,0,0,5" Text="Open a sender for" />
+                        <DataGrid Margin="0,0,30,0" Items="{Binding Providers}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Tab" Binding="{Binding Name}" />
+                                <DataGridTemplateColumn Header="Open">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="Open"
+                                                    Command="{Binding $parent[UserControl].DataContext.OpenSender}"
+                                                    IsEnabled="{Binding !$parent[UserControl].DataContext.Loading}"
+                                                    CommandParameter="{Binding }" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
                 </Grid>
             </Grid>
         </Border>
 
-        <ContentControl IsVisible="{Binding Loaded}" Content="{Binding  LogViewModel}" />
+        <ContentControl IsVisible="{Binding Loaded}" Content="{Binding  NestedViewModel}" />
     </Grid>
 </UserControl>

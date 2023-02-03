@@ -1,5 +1,5 @@
 //
-//  PacketLogDocumentView.axaml.cs
+//  DocumentView.axaml.cs
 //
 //  Copyright (c) František Boháček. All rights reserved.
 //  Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -12,12 +12,12 @@ using PropertyChanged;
 namespace PacketLogger.Views;
 
 [DoNotNotify]
-public partial class PacketLogDocumentView : UserControl
+public partial class DocumentView : UserControl
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="PacketLogDocumentView"/> class.
+    /// Initializes a new instance of the <see cref="DocumentView"/> class.
     /// </summary>
-    public PacketLogDocumentView()
+    public DocumentView()
     {
         InitializeComponent();
     }

@@ -40,7 +40,15 @@
                 <MenuItem Header="Exit" Command="{Binding QuitApplication}" />
             </MenuItem>
             <MenuItem Header="_Tools">
-                <MenuItem Header="_Packet Sender" />
+                <MenuItem Header="_Packet Sender" Command="{Binding Connect}" Items="{Binding Providers}">
+                    <MenuItem.Styles>
+                        <Style Selector="MenuItem">
+                            <Setter Property="Header" Value="{Binding Name}" />
+                            <Setter Property="Command" Value="{Binding OpenSender}" />
+                            <Setter Property="CommandParameter" Value="{Binding SelectedItems, RelativeSource={RelativeSource Self}}" />
+                        </Style>
+                    </MenuItem.Styles>
+                </MenuItem>
                 <MenuItem Header="_Packet Analyzer" />
             </MenuItem>
         </Menu>

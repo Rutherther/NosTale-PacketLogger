@@ -1,5 +1,5 @@
 //
-//  LogTabViewModel.cs
+//  PacketLogViewModel.cs
 //
 //  Copyright (c) František Boháček. All rights reserved.
 //  Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -26,7 +26,7 @@ using Reloaded.Memory.Kernel32;
 namespace PacketLogger.ViewModels;
 
 /// <inheritdoc />
-public class LogTabViewModel : ViewModelBase, IDisposable
+public class PacketLogViewModel : ViewModelBase, IDisposable
 {
     private readonly ReadOnlyObservableCollection<PacketInfo> _packets;
     private readonly IDisposable _cleanUp;
@@ -34,10 +34,10 @@ public class LogTabViewModel : ViewModelBase, IDisposable
     private bool _logSent = true;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="LogTabViewModel"/> class.
+    /// Initializes a new instance of the <see cref="PacketLogViewModel"/> class.
     /// </summary>
     /// <param name="packetProvider">The packet provider.</param>
-    public LogTabViewModel(IPacketProvider packetProvider)
+    public PacketLogViewModel(IPacketProvider packetProvider)
     {
         Provider = packetProvider;
 
@@ -120,12 +120,12 @@ public class LogTabViewModel : ViewModelBase, IDisposable
     /// <summary>
     /// Gets the send filter model.
     /// </summary>
-    public LogFilterTabViewModel SendFilter { get; }
+    public PacketLogFilterViewModel SendFilter { get; }
 
     /// <summary>
     /// Gets the receive filter model.
     /// </summary>
-    public LogFilterTabViewModel RecvFilter { get; }
+    public PacketLogFilterViewModel RecvFilter { get; }
 
     /// <summary>
     /// Gets the currently applied filter.
@@ -211,16 +211,16 @@ public class LogTabViewModel : ViewModelBase, IDisposable
         CurrentFilter = new SendRecvFilter(sendFilter, recvFilter);
     }
 
-    private IFilter CreateCompound(LogFilterTabViewModel logFilterTab)
+    private IFilter CreateCompound(PacketLogFilterViewModel packetLogFilter)
     {
         List<IFilter> filters = new List<IFilter>();
 
-        foreach (var filter in logFilterTab.Filters)
+        foreach (var filter in packetLogFilter.Filters)
         {
             filters.Add(FilterCreator.BuildFilter(filter.Type, filter.Value));
         }
 
-        return new CompoundFilter(!logFilterTab.Whitelist, filters.ToArray());
+        return new CompoundFilter(!packetLogFilter.Whitelist, filters.ToArray());
     }
 
     /// <inheritdoc />

@@ -11,13 +11,12 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Linq;
+using System.Reactive.Concurrency;
 using System.Reflection;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Dock.Model.Controls;
-using Dock.Model.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NosSmooth.Comms.Local.Extensions;
@@ -27,7 +26,6 @@ using NosSmooth.PacketSerializer.Extensions;
 using NosSmooth.PacketSerializer.Packets;
 using PacketLogger.Models;
 using PacketLogger.Models.Packets;
-using PacketLogger.Views;
 using ReactiveUI;
 
 namespace PacketLogger.ViewModels;
@@ -47,6 +45,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             .AddLogging(b => b.ClearProviders().AddConsole())
             .AddSingleton<DockFactory>()
             .AddSingleton<NostaleProcesses>()
+            .AddSingleton<ObservableCollection<IPacketProvider>>(_ => Providers)
             .AddNostaleCore()
             .AddStatefulInjector()
             .AddStatefulEntity<CommsPacketProvider>()
@@ -74,12 +73,28 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             }
         }
 
+        _factory.DocumentLoaded += doc =>
+        {
+            if (doc.Provider is not null)
+            {
+                RxApp.MainThreadScheduler.Schedule(() => Providers.Add(doc.Provider));
+            }
+        };
+
+        _factory.DocumentClosed += doc =>
+        {
+            if (doc.Provider is not null)
+            {
+                RxApp.MainThreadScheduler.Schedule(() => Providers.Remove(doc.Provider));
+            }
+        };
+
         SaveAll = ReactiveCommand.CreateFromTask
         (
             async () =>
             {
-                if (Layout?.FocusedDockable is PacketLogDocumentViewModel activeDocument && activeDocument.Loaded
-                    && activeDocument.LogViewModel is not null)
+                if (Layout?.FocusedDockable is DocumentViewModel activeDocument && activeDocument.Loaded
+                    && activeDocument.NestedViewModel is not null)
                 {
                     var mainWindow = (App.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)
                         ?.MainWindow;
@@ -94,9 +109,15 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
                         return;
                     }
 
+                    if (activeDocument.Provider is null)
+                    {
+                        return;
+                    }
+
                     using var file = File.OpenWrite(result);
                     using var streamWriter = new StreamWriter(file);
-                    foreach (var packet in activeDocument.LogViewModel.Provider.Packets.Items)
+
+                    foreach (var packet in activeDocument.Provider.Packets.Items)
                     {
                         await streamWriter.WriteLineAsync
                         (
@@ -111,8 +132,8 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         (
             async () =>
             {
-                if (Layout?.FocusedDockable is PacketLogDocumentViewModel activeDocument && activeDocument.Loaded
-                    && activeDocument.LogViewModel is not null)
+                if (Layout?.FocusedDockable is DocumentViewModel activeDocument && activeDocument.Loaded
+                    && activeDocument.NestedViewModel is not null)
                 {
                     var mainWindow = (App.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)
                         ?.MainWindow;
@@ -126,9 +147,14 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
                         return;
                     }
 
+                    if (activeDocument.NestedViewModel is not PacketLogViewModel packetLogVM)
+                    {
+                        return;
+                    }
+
                     using var file = File.OpenWrite(result);
                     using var streamWriter = new StreamWriter(file);
-                    foreach (var packet in activeDocument.LogViewModel.FilteredPackets)
+                    foreach (var packet in packetLogVM.FilteredPackets)
                     {
                         await streamWriter.WriteLineAsync
                         (
@@ -148,6 +174,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         Connect = ReactiveCommand.Create<IList>
             (process => _factory.CreateLoadedDocument(doc => doc.OpenProcess.Execute((NostaleProcess)process[0]!)));
 
+        OpenSender = ReactiveCommand.Create<IList>
+            (provider => _factory.CreateLoadedDocument(doc => doc.OpenSender.Execute((IPacketProvider)provider[0]!)));
+
         NewTab = ReactiveCommand.Create
             (() => _factory.DocumentDock.CreateDocument?.Execute(null));
 
@@ -159,6 +188,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     /// Gets the nostale processes.
     /// </summary>
     public ObservableCollection<NostaleProcess> Processes => _processes.Processes;
+
+    /// <summary>
+    /// Gets the packet provider.
+    /// </summary>
+    public ObservableCollection<IPacketProvider> Providers { get; } = new ObservableCollection<IPacketProvider>();
 
     /// <summary>
     /// Gets or sets the layout.
@@ -189,6 +223,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     /// Gets the command that opens empty logger.
     /// </summary>
     public ReactiveCommand<Unit, Unit> OpenEmpty { get; }
+
+    /// <summary>
+    /// Gets the command that opens empty logger.
+    /// </summary>
+    public ReactiveCommand<IList, Unit> OpenSender { get; }
 
     /// <summary>
     /// Gets the command that opens empty logger.
