@@ -22,9 +22,15 @@
                 <NumericUpDown Value="{Binding RepetitionDelay}" />
                 <TextBlock Text="ms" />
             </StackPanel>
-            <Button Content="Start/Stop" Command="{Binding ToggleRepetetiveSend}" />
+            <Button Command="{Binding ToggleRepetetiveSend}">
+                <Grid>
+                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="Start" IsVisible="{Binding !IsSending}" />
+                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="Stop" IsVisible="{Binding IsSending}" />
+                </Grid>
+            </Button>
         </StackPanel>
 
-        <TextBox Text="{Binding PacketsData}" AcceptsReturn="True" TextWrapping="NoWrap" Margin="0, 0, 20, 0" />
+        <TextBox IsEnabled="{Binding !IsSending}" IsReadOnly="{Binding IsSending}" Text="{Binding PacketsData}" AcceptsReturn="True"
+                 TextWrapping="NoWrap" Margin="0, 0, 20, 0" />
     </DockPanel>
 </UserControl>
