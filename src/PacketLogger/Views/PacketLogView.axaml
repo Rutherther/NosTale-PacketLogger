@@ -17,9 +17,11 @@
     <Design.DataContext>
         <vm:PacketLogViewModel />
     </Design.DataContext>
-    <SplitView IsPaneOpen="{Binding PaneOpen, Mode = TwoWay}" DisplayMode="CompactInline" PanePlacement="Right">
+    <SplitView OpenPaneLength="300" IsPaneOpen="{Binding PaneOpen, Mode = TwoWay}" DisplayMode="CompactInline"
+               PanePlacement="Right">
         <SplitView.Pane>
-            <Grid ColumnDefinitions="*" RowDefinitions="*,80" Margin="10">
+            <Grid Width="280" HorizontalAlignment="Left"
+                  ColumnDefinitions="*" RowDefinitions="*,80" Margin="10">
                 <Grid Grid.Row="0" RowDefinitions="45,*">
                     <Grid Grid.Row="0" Grid.Column="0" ColumnDefinitions="24, Auto, *">
                         <Button Margin="0,1,0,0" VerticalContentAlignment="Stretch"
@@ -59,14 +61,22 @@
                  x:Name="PacketsLog"
                  SelectedItem="{Binding SelectedPacket, Mode=TwoWay}"
                  SelectionChanged="PacketsLog_OnSelectionChanged">
+            <ListBox.Styles>
+                <Style Selector="ListBoxItem">
+                    <Setter Property="Padding" Value="1" />
+                </Style>
+                <Style Selector="TextBlock">
+                    <Setter Property="FontSize" Value="12" />
+                </Style>
+            </ListBox.Styles>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Width="80" Text="{Binding Date, StringFormat = {}{0:HH:mm:ss}}" />
-                        <TextBlock Width="50"
+                    <StackPanel Height="16" Margin="0" Orientation="Horizontal">
+                        <TextBlock Width="60" Text="{Binding Date, StringFormat = {}{0:HH:mm:ss}}" />
+                        <TextBlock Width="40"
                                    Text="{Binding Source, Converter = {StaticResource packetSourceConverter}}">
                         </TextBlock>
-                        <Border Margin="5,0,0,0" ToolTip.Tip="{Binding PacketString}">
+                        <Border ToolTip.Tip="{Binding PacketString}">
                             <TextBlock VerticalAlignment="Center" Text="{Binding PacketString}"
                                        TextTrimming="CharacterEllipsis">
                             </TextBlock>

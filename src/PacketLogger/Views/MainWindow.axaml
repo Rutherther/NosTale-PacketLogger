@@ -12,6 +12,7 @@
         Title="PacketLogger"
         FontFamily="avares://Avalonia.Themes.Fluent/Assets#Inter"
         TransparencyLevelHint="AcrylicBlur"
+        Width="800" Height="600"
         Padding="0" Margin="0">
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
