@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reactive;
-using System.Reactive.Linq;
 using Dock.Avalonia.Controls;
 using Dock.Model.Controls;
 using Dock.Model.Core;
@@ -20,6 +19,7 @@ using PacketLogger.Models;
 using PacketLogger.Models.Packets;
 using PacketLogger.Views;
 using ReactiveUI;
+using HostWindow = PacketLogger.Views.HostWindow;
 
 namespace PacketLogger.ViewModels;
 
