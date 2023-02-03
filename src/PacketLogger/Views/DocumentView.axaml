@@ -62,7 +62,8 @@
 
                     <StackPanel Grid.Row="3" Grid.Column="0" Orientation="Vertical">
                         <TextBlock FontSize="30" Margin="0,0,0,5" Text="Connect to NosTale process" />
-                        <DataGrid Margin="0,0,30,0" Items="{Binding Processes}">
+                        <DataGrid CanUserReorderColumns="True" CanUserResizeColumns="True"
+                                  Margin="0,0,30,0" Items="{Binding Processes}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Character" Binding="{Binding CharacterString}" />
                                 <DataGridTextColumn Header="Process" Binding="{Binding ProcessString}" />
