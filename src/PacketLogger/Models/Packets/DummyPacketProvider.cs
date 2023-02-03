@@ -33,27 +33,6 @@ public class DummyPacketProvider : IPacketProvider, IDisposable
     {
         Name = name;
         Packets = new SourceList<PacketInfo>();
-        Packets.Add(new PacketInfo(_index++, DateTime.Now, PacketSource.Client, "#cl"));
-        Packets.Add(new PacketInfo(_index++, DateTime.Now, PacketSource.Client, "cl"));
-        for (var i = 0; i < 1000; i++)
-        {
-            Packets.Add
-                (new PacketInfo(_index++, DateTime.Now.AddSeconds(-1000 + i), PacketSource.Client, "walk 10 10"));
-            Packets.Add
-            (
-                new PacketInfo
-                (
-                    _index++,
-                    DateTime.Now.AddSeconds(-1000 + i),
-                    PacketSource.Server,
-                    "mv 1 50 52 123 123 89012390812 189023 182309 1823 189023 901283 091823 091823 901823 901283 091283 019283901283 901283 901 2831290 812390128390128213908139012839012839012390128390128938120938 1290 3190 adsadf"
-                )
-            );
-            Packets.Add
-                (new PacketInfo(_index++, DateTime.Now.AddSeconds(-1000 + i), PacketSource.Client, "walk 12 14"));
-            Packets.Add
-                (new PacketInfo(_index++, DateTime.Now.AddSeconds(-1000 + i), PacketSource.Server, "mv 1 48 43"));
-        }
     }
 
     /// <inheritdoc />
@@ -84,15 +63,11 @@ public class DummyPacketProvider : IPacketProvider, IDisposable
 
     /// <inheritdoc />
     public Task<Result> Open()
-    {
-        return Task.FromResult(Result.FromSuccess());
-    }
+        => Task.FromResult(Result.FromSuccess());
 
     /// <inheritdoc />
     public Task<Result> Close()
-    {
-        return Task.FromResult(Result.FromSuccess());
-    }
+        => Task.FromResult(Result.FromSuccess());
 
     /// <inheritdoc />
     public void Clear()
