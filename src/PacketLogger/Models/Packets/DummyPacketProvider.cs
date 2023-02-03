@@ -28,8 +28,10 @@ public class DummyPacketProvider : IPacketProvider, IDisposable
     /// <summary>
     /// Initializes a new instance of the <see cref="DummyPacketProvider"/> class.
     /// </summary>
-    public DummyPacketProvider()
+    /// <param name="name">The name of the tab.</param>
+    public DummyPacketProvider(string name)
     {
+        Name = name;
         Packets = new SourceList<PacketInfo>();
         Packets.Add(new PacketInfo(_index++, DateTime.Now, PacketSource.Client, "#cl"));
         Packets.Add(new PacketInfo(_index++, DateTime.Now, PacketSource.Client, "cl"));
@@ -72,7 +74,7 @@ public class DummyPacketProvider : IPacketProvider, IDisposable
     }
 
     /// <inheritdoc />
-    public string Name => "Empty";
+    public string Name { get; }
 
     /// <inheritdoc />
     public bool IsOpen => false;

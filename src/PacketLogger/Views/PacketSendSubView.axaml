@@ -14,15 +14,13 @@
     </Design.DataContext>
 
     <DockPanel>
-        <StackPanel DockPanel.Dock="Right" Width="150">
+        <StackPanel Margin="0, 5, 0, 0" DockPanel.Dock="Bottom" Orientation="Horizontal" VerticalAlignment="Center">
             <Button Content="{Binding Source, Converter= {StaticResource packetSourceConverter}}"
                     Command="{Binding SendPackets}" />
-            <TextBlock Text="Repeat delay" />
-            <StackPanel>
-                <NumericUpDown Value="{Binding RepetitionDelay}" />
-                <TextBlock Text="ms" />
-            </StackPanel>
-            <Button Command="{Binding ToggleRepetetiveSend}">
+            <TextBlock Margin="20, 0,0 ,0" VerticalAlignment="Center" Text="Repeat" />
+            <NumericUpDown Minimum="1" Margin="10,0,0,0" Value="{Binding RepetitionDelay}" IsEnabled="{Binding !IsSending}" />
+            <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Text="ms" />
+            <Button Margin="10,0,0,0" Command="{Binding ToggleRepetetiveSend}">
                 <Grid>
                     <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="Start" IsVisible="{Binding !IsSending}" />
                     <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="Stop" IsVisible="{Binding IsSending}" />

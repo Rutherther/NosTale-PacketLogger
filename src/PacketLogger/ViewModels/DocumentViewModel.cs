@@ -72,8 +72,7 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
                 () =>
                 {
                     Loading = true;
-                    Name = "Dummy";
-                    _packetProvider = new DummyPacketProvider();
+                    _packetProvider = new DummyPacketProvider(Title);
                     NestedViewModel = new PacketLogViewModel(_packetProvider);
                     Loaded = true;
                     onDocumentLoaded(this);
@@ -194,11 +193,6 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
     /// Gets the open providers.
     /// </summary>
     public ObservableCollection<IPacketProvider> Providers => _providers;
-
-    /// <summary>
-    /// Gets or sets the name of the tab.
-    /// </summary>
-    public string Name { get; set; } = "New tab";
 
     /// <summary>
     /// Gets whether the document is currently being loaded.

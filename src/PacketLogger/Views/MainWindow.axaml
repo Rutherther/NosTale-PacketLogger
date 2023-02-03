@@ -11,7 +11,8 @@
         ExtendClientAreaToDecorationsHint="True"
         Title="PacketLogger"
         FontFamily="avares://Avalonia.Themes.Fluent/Assets#Inter"
-        TransparencyLevelHint="AcrylicBlur">
+        TransparencyLevelHint="AcrylicBlur"
+        Padding="0" Margin="0">
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
@@ -28,7 +29,8 @@
                         <Style Selector="MenuItem">
                             <Setter Property="Header" Value="{Binding CharacterString}" />
                             <Setter Property="Command" Value="{Binding Connect}" />
-                            <Setter Property="CommandParameter" Value="{Binding SelectedItems, RelativeSource={RelativeSource Self}}" />
+                            <Setter Property="CommandParameter"
+                                    Value="{Binding SelectedItems, RelativeSource={RelativeSource Self}}" />
                         </Style>
                     </MenuItem.Styles>
                 </MenuItem>
@@ -45,7 +47,8 @@
                         <Style Selector="MenuItem">
                             <Setter Property="Header" Value="{Binding Name}" />
                             <Setter Property="Command" Value="{Binding OpenSender}" />
-                            <Setter Property="CommandParameter" Value="{Binding SelectedItems, RelativeSource={RelativeSource Self}}" />
+                            <Setter Property="CommandParameter"
+                                    Value="{Binding SelectedItems, RelativeSource={RelativeSource Self}}" />
                         </Style>
                     </MenuItem.Styles>
                 </MenuItem>
@@ -63,15 +66,7 @@
             </ExperimentalAcrylicBorder.Material>
         </ExperimentalAcrylicBorder>
 
-        <Grid Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" RowDefinitions="*, 25">
-            <DockControl Grid.Row="0" Grid.Column="0" x:Name="DockControl" Layout="{Binding Layout}" Margin="4" />
-            <Panel DataContext="{Binding Layout.ActiveDockable}"
-                   Grid.Row="1" Grid.Column="0">
-                <TextBlock Text="{Binding FocusedDockable, FallbackValue={}}"
-                           Margin="4"
-                           x:DataType="core:IDock"
-                           x:CompileBindings="True" />
-            </Panel>
-        </Grid>
+        <DockControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" x:Name="DockControl" Layout="{Binding Layout}"
+                     Margin="0" />
     </Grid>
 </Window>

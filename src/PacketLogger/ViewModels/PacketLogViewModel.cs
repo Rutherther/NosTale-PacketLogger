@@ -71,14 +71,16 @@ public class PacketLogViewModel : ViewModelBase, IDisposable
                     if (Scroll)
                     {
                         RxApp.MainThreadScheduler.Schedule
-                            (DateTimeOffset.Now.AddMilliseconds(100), () =>
+                        (
+                            DateTimeOffset.Now.AddMilliseconds(100),
+                            () =>
+                            {
+                                if (FilteredPackets.Count > 0)
                                 {
-                                    if (FilteredPackets.Count > 0)
-                                    {
-                                        SelectedPacket = FilteredPackets[^1];
-                                    }
+                                    SelectedPacket = FilteredPackets[^1];
                                 }
-                            );
+                            }
+                        );
                     }
                 }
             );
@@ -213,6 +215,16 @@ public class PacketLogViewModel : ViewModelBase, IDisposable
     /// Gets empty string.
     /// </summary>
     public string Empty { get; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets whether the recv filter is selected.
+    /// </summary>
+    public bool RecvFilterSelected { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the send filter is selected.
+    /// </summary>
+    public bool SendFilterSelected { get; set; }
 
     private void CreateSendRecv()
     {

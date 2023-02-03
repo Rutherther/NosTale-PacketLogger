@@ -19,9 +19,9 @@
     </Design.DataContext>
     <SplitView IsPaneOpen="{Binding PaneOpen, Mode = TwoWay}" DisplayMode="CompactInline" PanePlacement="Right">
         <SplitView.Pane>
-            <Grid ColumnDefinitions="*" RowDefinitions="0.8*,100" Margin="10">
-                <Grid Grid.Row="0" RowDefinitions="30,*">
-                    <Grid Grid.Row="0" Grid.Column="0" ColumnDefinitions="24, *">
+            <Grid ColumnDefinitions="*" RowDefinitions="*,80" Margin="10">
+                <Grid Grid.Row="0" RowDefinitions="45,*">
+                    <Grid Grid.Row="0" Grid.Column="0" ColumnDefinitions="24, Auto, *">
                         <Button Margin="0,1,0,0" VerticalContentAlignment="Stretch"
                                 HorizontalContentAlignment="Stretch" Width="22" Height="22"
                                 Command="{Binding TogglePane}">
@@ -33,24 +33,16 @@
                         </Button>
                         <TextBlock VerticalAlignment="Center" Grid.Column="1" FontSize="30" Text="Filter"
                                    Margin="5,0,0,0" />
+                        <TabStrip Grid.Column="2" VerticalAlignment="Center">
+                            <TabStripItem IsSelected="{Binding RecvFilterSelected, Mode = TwoWay}">Recv</TabStripItem>
+                            <TabStripItem IsSelected="{Binding SendFilterSelected, Mode = TwoWay}">Send</TabStripItem>
+                        </TabStrip>
                     </Grid>
 
-                    <TabControl Grid.Row="1" Margin="0" Padding="0">
-                        <TabItem>
-                            <TabItem.Header>
-                                Recv
-                            </TabItem.Header>
-
-                            <ContentControl Content="{Binding RecvFilter}" />
-                        </TabItem>
-                        <TabItem>
-                            <TabItem.Header>
-                                Send
-                            </TabItem.Header>
-
-                            <ContentControl Content="{Binding SendFilter}" />
-                        </TabItem>
-                    </TabControl>
+                    <Panel Grid.Row="1" Margin="0,5,0,0">
+                        <ContentControl IsVisible="{Binding RecvFilterSelected}" Content="{Binding RecvFilter}"></ContentControl>
+                        <ContentControl IsVisible="{Binding SendFilterSelected}" Content="{Binding SendFilter}"></ContentControl>
+                    </Panel>
                 </Grid>
 
                 <Grid Grid.Row="1" RowDefinitions="40,40" ColumnDefinitions="140,140">
@@ -70,8 +62,10 @@
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Width="90" Text="{Binding Date, StringFormat = {}{0:HH:mm:ss}}" />
-                        <TextBlock Width="85" Text="{Binding Source, Converter = {StaticResource packetSourceConverter}}"></TextBlock>
+                        <TextBlock Width="80" Text="{Binding Date, StringFormat = {}{0:HH:mm:ss}}" />
+                        <TextBlock Width="50"
+                                   Text="{Binding Source, Converter = {StaticResource packetSourceConverter}}">
+                        </TextBlock>
                         <Border Margin="5,0,0,0" ToolTip.Tip="{Binding PacketString}">
                             <TextBlock VerticalAlignment="Center" Text="{Binding PacketString}"
                                        TextTrimming="CharacterEllipsis">
