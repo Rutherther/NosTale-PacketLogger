@@ -27,6 +27,7 @@ using NosSmooth.Core.Stateful;
 using PacketLogger.Models;
 using PacketLogger.Models.Packets;
 using ReactiveUI;
+using Remora.Results;
 
 namespace PacketLogger.ViewModels;
 
@@ -142,6 +143,14 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
                 {
                     repository.Remove(connection.Client);
                     Console.WriteLine(contractResult.ToFullString());
+                    return;
+                }
+
+                var handshakeInitResponse = handshakeResponse.InitializationErrorfulResult ?? Result.FromSuccess();
+                if (!handshakeInitResponse.IsSuccess)
+                {
+                    repository.Remove(connection.Client);
+                    Console.WriteLine(handshakeInitResponse.ToFullString());
                     return;
                 }
 
