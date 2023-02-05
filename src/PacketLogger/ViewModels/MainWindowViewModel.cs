@@ -50,17 +50,10 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             .AddStatefulInjector()
             .AddStatefulEntity<CommsPacketProvider>()
             .AddLocalComms()
-            .AddPacketResponder<PacketResponder>()
+            .AddPacketResponder(typeof(PacketResponder))
             .BuildServiceProvider();
 
         _processes = services.GetRequiredService<NostaleProcesses>();
-        var packetTypes = services.GetRequiredService<IPacketTypesRepository>();
-
-        var result = packetTypes.AddDefaultPackets();
-        if (!result.IsSuccess)
-        {
-            Console.WriteLine(result.ToFullString());
-        }
 
         _factory = services.GetRequiredService<DockFactory>();
         Layout = _factory.CreateLayout();

@@ -96,7 +96,7 @@ public class CommsPacketProvider : ReactiveObject, IPacketProvider
     /// </summary>
     /// <param name="packetArgs">The packet event args.</param>
     /// <typeparam name="TPacket">The type of the deserialized packet.</typeparam>
-    internal void AddPacket<TPacket>(PacketEventArgs<TPacket> packetArgs)
+    internal void AddPacket(PacketEventArgs packetArgs)
     {
         var index = Interlocked.Increment(ref _currentIndex);
         if ((packetArgs.Source == PacketSource.Server && LogReceived)

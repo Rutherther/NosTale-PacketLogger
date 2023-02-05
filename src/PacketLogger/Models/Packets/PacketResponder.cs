@@ -17,7 +17,7 @@ using Remora.Results;
 namespace PacketLogger.Models.Packets;
 
 /// <inheritdoc />
-public class PacketResponder : IEveryPacketResponder
+public class PacketResponder : IRawPacketResponder
 {
     private readonly CommsPacketProvider _provider;
 
@@ -31,8 +31,7 @@ public class PacketResponder : IEveryPacketResponder
     }
 
     /// <inheritdoc />
-    public Task<Result> Respond<TPacket>(PacketEventArgs<TPacket> packetArgs, CancellationToken ct = default)
-        where TPacket : IPacket
+    public Task<Result> Respond(PacketEventArgs packetArgs, CancellationToken ct = default)
     {
         _provider.AddPacket(packetArgs);
         return Task.FromResult(Result.FromSuccess());
