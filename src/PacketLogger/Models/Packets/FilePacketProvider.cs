@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -70,13 +71,22 @@ public class FilePacketProvider : IPacketProvider
             return new NotFoundError($"Could not find file {_fileName}");
         }
 
+        int successfulLines = 0;
         var packets = new SourceList<PacketInfo>();
         _index = 0;
-        foreach (var line in await File.ReadAllLinesAsync(_fileName))
+        using var file = File.OpenRead(_fileName);
+        using var fileStream = new StreamReader(file);
+        if (fileStream.Peek() != '[')
         {
-            if (line.Length <= 1)
+            return new GenericError("Looks like the file is not a packet log or in wrong format.");
+        }
+
+        while (!fileStream.EndOfStream)
+        {
+            var line = await fileStream.ReadLineAsync();
+            if (line is null)
             {
-                continue;
+                break;
             }
 
             var splitted = line.Split('\t', 3);
@@ -92,6 +102,7 @@ public class FilePacketProvider : IPacketProvider
                         splitted[1]
                     )
                 );
+                successfulLines++;
             }
             else if (splitted.Length == 3)
             {
@@ -105,6 +116,7 @@ public class FilePacketProvider : IPacketProvider
                         splitted[2]
                     )
                 );
+                successfulLines++;
             }
         }
 
