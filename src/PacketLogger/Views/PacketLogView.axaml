@@ -61,6 +61,7 @@
                  x:Name="PacketsLog"
                  SelectionMode="Multiple"
                  SelectedItem="{Binding SelectedPacket, Mode=TwoWay}"
+                 VerticalAlignment="Stretch"
                  SelectionChanged="PacketsLog_OnSelectionChanged">
             <ListBox.Styles>
                 <Style Selector="ListBoxItem">

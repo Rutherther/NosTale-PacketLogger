@@ -106,7 +106,8 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
                 var openResult = await provider.Open();
                 if (!openResult.IsSuccess)
                 {
-                    Console.WriteLine("Could not open the file.");
+                    Error = "File could not be opened. " + openResult.ToFullString();
+                    Loading = false;
                     return;
                 }
 
@@ -127,7 +128,8 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
                     (process.Process, _ctSource.Token, ct);
                 if (!connectionResult.IsDefined(out var connection))
                 {
-                    Console.WriteLine(connectionResult.ToFullString());
+                    Error = "An error has occurred upon establishing a connection: " + connectionResult.ToFullString();
+                    Loading = false;
                     return;
                 }
 
@@ -142,7 +144,8 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
                 if (!contractResult.IsDefined(out var handshakeResponse))
                 {
                     repository.Remove(connection.Client);
-                    Console.WriteLine(contractResult.ToFullString());
+                    Error = "An error has occurred upon sending handshake: " + contractResult.ToFullString();
+                    Loading = false;
                     return;
                 }
 
@@ -150,7 +153,8 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
                 if (!handshakeInitResponse.IsSuccess)
                 {
                     repository.Remove(connection.Client);
-                    Console.WriteLine(handshakeInitResponse.ToFullString());
+                    Error = "An error has occurred during handshaking: " + handshakeInitResponse.ToFullString();
+                    Loading = false;
                     return;
                 }
 
@@ -176,16 +180,18 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
         );
 
         OpenSender = ReactiveCommand.Create<IPacketProvider>
-            (
-                provider =>
-                {
-                    Loading = true;
-                    NestedViewModel = new PacketSenderViewModel(provider);
-                    Title = $"Sender ({provider.Name})";
-                    Loaded = true;
-                    Loading = false;
-                }
-            );
+        (
+            provider =>
+            {
+                Loading = true;
+                NestedViewModel = new PacketSenderViewModel(provider);
+                Title = $"Sender ({provider.Name})";
+                Loaded = true;
+                Loading = false;
+            }
+        );
+
+        ClearError = ReactiveCommand.Create(() => Error = null);
     }
 
     /// <summary>
@@ -214,6 +220,16 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
     public bool Loaded { get; private set; }
 
     /// <summary>
+    /// Gets or sets the current error.
+    /// </summary>
+    public string? Error { get; private set; }
+
+    /// <summary>
+    /// Gets or sets whether there is an error.
+    /// </summary>
+    public bool HasError => Error is not null;
+
+    /// <summary>
     /// Gets the log tab view model.
     /// </summary>
     public ViewModelBase? NestedViewModel { get; private set; }
@@ -232,6 +248,11 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
     /// Gets command for opening a file.
     /// </summary>
     public ReactiveCommand<Unit, Unit> OpenFile { get; }
+
+    /// <summary>
+    /// Gets the command to clear the error.
+    /// </summary>
+    public ReactiveCommand<Unit, string?> ClearError { get; }
 
     /// <summary>
     /// Gets the command for opening a process / connecting to a process.

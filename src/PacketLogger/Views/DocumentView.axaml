@@ -12,12 +12,27 @@
     </Design.DataContext>
 
     <Grid>
-        <Border IsVisible="{Binding !Loaded}"
+        <Border Grid.Row="1" IsVisible="{Binding !Loaded}"
                 MaxWidth="1000" MaxHeight="600"
                 CornerRadius="25"
                 Background="{DynamicResource SystemControlPageBackgroundChromeLowBrush}">
-            <Grid Margin="50">
-                <Grid ColumnDefinitions="*,*" RowDefinitions="60, 80, 80, *">
+            <Grid RowDefinitions="Auto,*" Margin="50">
+                <Border IsVisible="{Binding HasError}"
+                        MaxWidth="600"
+                        Margin="10"
+                        Grid.Row="0" Background="Red" CornerRadius="10">
+                    <StackPanel Margin="10" Orientation="Vertical">
+                        <Grid ColumnDefinitions="*,30">
+                            <TextBlock Grid.Column="0" FontSize="20" FontStyle="Oblique" Text="Notification" />
+                            <Button Padding="0" Margin="0" Command="{Binding ClearError}" Grid.Column="1" Width="20" Height="20">
+                                <i:Icon FontSize="12" Value="mdi-close" />
+                            </Button>
+                        </Grid>
+                        <TextBlock Text="{Binding Error}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+                
+                <Grid Grid.Row="1" ColumnDefinitions="*,*" RowDefinitions="60, 80, 80, *">
                     <Grid.Styles>
                         <Style Selector="Button.open">
                             <Setter Property="FontSize" Value="24"></Setter>
