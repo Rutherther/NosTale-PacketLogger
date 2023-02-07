@@ -42,4 +42,31 @@
     <PackageReference Include="Remora.Results" Version="7.2.3" />
     <PackageReference Include="XamlNameReferenceGenerator" Version="1.5.1" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\Sender\PacketSendSubView.axaml.cs">
+      <DependentUpon>PacketSendSubView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\Sender\PacketSenderView.axaml.cs">
+      <DependentUpon>PacketSenderView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\Log\PacketLogView.axaml.cs">
+      <DependentUpon>PacketLogView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\Settings\SettingsView.axaml.cs">
+      <DependentUpon>SettingsView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\Filters\FilterChooseView.axaml.cs">
+      <DependentUpon>FilterChooseView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\Filters\FilterConfigView.axaml.cs">
+      <DependentUpon>FilterConfigView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
 </Project>

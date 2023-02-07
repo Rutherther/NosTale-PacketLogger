@@ -25,7 +25,11 @@ using NosSmooth.Core.Contracts;
 using NosSmooth.Core.Extensions;
 using NosSmooth.Core.Stateful;
 using PacketLogger.Models;
+using PacketLogger.Models.Filters;
 using PacketLogger.Models.Packets;
+using PacketLogger.ViewModels.Log;
+using PacketLogger.ViewModels.Sender;
+using PacketLogger.ViewModels.Settings;
 using ReactiveUI;
 using Remora.Results;
 
@@ -34,7 +38,6 @@ namespace PacketLogger.ViewModels;
 /// <inheritdoc />
 public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
 {
-    private readonly CommsInjector _injector;
     private readonly ObservableCollection<IPacketProvider> _providers;
     private readonly NostaleProcesses _processes;
     private readonly Action<DocumentViewModel> _onDocumentUnloaded;
@@ -45,6 +48,7 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
     /// <summary>
     /// Initializes a new instance of the <see cref="DocumentViewModel"/> class.
     /// </summary>
+    /// <param name="filterProfiles">The filter profiles.</param>
     /// <param name="injector">The injector.</param>
     /// <param name="repository">The repository.</param>
     /// <param name="providers">The providers.</param>
@@ -53,6 +57,7 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
     /// <param name="onDocumentUnloaded">The action to call on document unloaded/closed.</param>
     public DocumentViewModel
     (
+        FilterProfiles filterProfiles,
         CommsInjector injector,
         StatefulRepository repository,
         ObservableCollection<IPacketProvider> providers,
@@ -61,8 +66,8 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
         Action<DocumentViewModel> onDocumentUnloaded
     )
     {
+        FilterProfiles = filterProfiles;
         _ctSource = new CancellationTokenSource();
-        _injector = injector;
         _providers = providers;
         _processes = processes;
         _onDocumentUnloaded = onDocumentUnloaded;
@@ -74,7 +79,7 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
                 {
                     Loading = true;
                     _packetProvider = new DummyPacketProvider(Title);
-                    NestedViewModel = new PacketLogViewModel(_packetProvider);
+                    NestedViewModel = new PacketLogViewModel(_packetProvider, filterProfiles);
                     Loaded = true;
                     onDocumentLoaded(this);
                 }
@@ -112,7 +117,7 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
                 }
 
                 Title = Path.GetFileName(path);
-                NestedViewModel = new PacketLogViewModel(provider);
+                NestedViewModel = new PacketLogViewModel(provider, filterProfiles);
                 Loaded = true;
                 Loading = false;
                 onDocumentLoaded(this);
@@ -171,7 +176,7 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
                     )
                     .Subscribe();
 
-                NestedViewModel = new PacketLogViewModel(provider);
+                NestedViewModel = new PacketLogViewModel(provider, filterProfiles);
                 Title = handshakeResponse.CharacterName ?? $"Not in game ({process.Process.Id})";
                 Loading = false;
                 Loaded = true;
@@ -192,7 +197,20 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
         );
 
         ClearError = ReactiveCommand.Create(() => Error = null);
+
+        OpenSettings = ReactiveCommand.Create(
+            () =>
+            {
+                Title = "Settings";
+                NestedViewModel = new SettingsViewModel(filterProfiles);
+                Loaded = true;
+            });
     }
+
+    /// <summary>
+    /// Gets the filter profiles.
+    /// </summary>
+    public FilterProfiles FilterProfiles { get; }
 
     /// <summary>
     /// Gets the processes observable.
@@ -258,6 +276,11 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
     /// Gets the command for opening a process / connecting to a process.
     /// </summary>
     public ReactiveCommand<NostaleProcess, Unit> OpenProcess { get; }
+
+    /// <summary>
+    /// Get open settings command.
+    /// </summary>
+    public ReactiveCommand<Unit, Unit> OpenSettings { get; }
 
     /// <inheritdoc />
     public override bool OnClose()

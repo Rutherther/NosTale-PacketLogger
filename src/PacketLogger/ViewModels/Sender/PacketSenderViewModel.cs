@@ -5,12 +5,10 @@
 //  Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Reactive;
 using NosSmooth.PacketSerializer.Abstractions.Attributes;
 using PacketLogger.Models.Packets;
-using ReactiveUI;
 
-namespace PacketLogger.ViewModels;
+namespace PacketLogger.ViewModels.Sender;
 
 /// <inheritdoc />
 public class PacketSenderViewModel : ViewModelBase, IDisposable

@@ -3,10 +3,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:PacketLogger.ViewModels"
+             xmlns:sender="clr-namespace:PacketLogger.ViewModels.Sender"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="PacketLogger.Views.PacketSenderView">
+             x:Class="PacketLogger.Views.Sender.PacketSenderView">
     <Design.DataContext>
-        <viewModels:PacketSenderViewModel />
+        <sender:PacketSenderViewModel />
     </Design.DataContext>
     <Grid RowDefinitions="15,*,15,*" Margin="10">
         <TextBlock Grid.Row="0" Text="Recv" Margin="0,0,0,5" />

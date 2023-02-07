@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:settings="clr-namespace:PacketLogger.ViewModels.Settings"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PacketLogger.Views.Settings.FilterSettingsView">
+    <Design.DataContext>
+        <settings:FilterSettingsViewModel />
+    </Design.DataContext>
+    <StackPanel Orientation="Horizontal">
+        <Grid RowDefinitions="*, Auto" ColumnDefinitions="*,*">
+            <ListBox Margin="0,0,0,10" Grid.ColumnSpan="2" Width="150" Items="{Binding Profiles.AllProfiles}" SelectedItem="{Binding CurrentFilterProfile}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            
+            <Button Margin="0,0,5,0" Grid.Row="1" Grid.Column="0" Content="Remove" Command="{Binding RemoveCurrentProfile}" />
+            <Button Margin="5,0,0,0" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" Content="Add" Command="{Binding AddProfile}" />
+        </Grid>
+
+        <Grid Margin="10,0,0,0" RowDefinitions="Auto,*" VerticalAlignment="Stretch">
+            <CheckBox Grid.Row="0" Content="Enable default filter" IsChecked="{Binding Profiles.DefaultFilterEnabled}" />
+            <ContentControl Grid.Row="1" VerticalAlignment="Stretch" Margin="0,10,0,0" Content="{Binding CurrentFilterProfileViewModel}" />
+        </Grid>
+    </StackPanel>
+</UserControl>

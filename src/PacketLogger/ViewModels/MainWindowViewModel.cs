@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 using System.Reflection;
 using Avalonia;
 using Avalonia.Controls;
@@ -25,7 +26,9 @@ using NosSmooth.PacketSerializer.Abstractions.Attributes;
 using NosSmooth.PacketSerializer.Extensions;
 using NosSmooth.PacketSerializer.Packets;
 using PacketLogger.Models;
+using PacketLogger.Models.Filters;
 using PacketLogger.Models.Packets;
+using PacketLogger.ViewModels.Log;
 using ReactiveUI;
 
 namespace PacketLogger.ViewModels;
@@ -43,6 +46,7 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     {
         var services = new ServiceCollection()
             .AddLogging(b => b.ClearProviders().AddConsole())
+            .AddSingleton<FilterProfiles>()
             .AddSingleton<DockFactory>()
             .AddSingleton<NostaleProcesses>()
             .AddSingleton<ObservableCollection<IPacketProvider>>(_ => Providers)
@@ -164,6 +168,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
         OpenEmpty = ReactiveCommand.Create
             (() => _factory.CreateLoadedDocument(doc => doc.OpenDummy.Execute(Unit.Default)));
 
+        OpenSettings = ReactiveCommand.Create
+            (() => _factory.CreateLoadedDocument(doc => doc.OpenSettings.Execute(Unit.Default)));
+
         Connect = ReactiveCommand.Create<IList>
             (process => _factory.CreateLoadedDocument(doc => doc.OpenProcess.Execute((NostaleProcess)process[0]!)));
 
@@ -231,4 +238,9 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
     /// Gets the command that opens a new tab.
     /// </summary>
     public ReactiveCommand<Unit, Unit> NewTab { get; }
+
+    /// <summary>
+    /// Gets the command used for opening settings.
+    /// </summary>
+    public ReactiveCommand<Unit, Unit> OpenSettings { get; }
 }

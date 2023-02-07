@@ -1,30 +1,28 @@
 //
-//  PacketLogFilterViewModel.cs
+//  FilterEntryViewModel.cs
 //
 //  Copyright (c) František Boháček. All rights reserved.
 //  Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
-using System.Collections.ObjectModel;
 using System.Reactive;
-using Avalonia;
-using Avalonia.Input.Platform;
-using DynamicData;
-using Microsoft.VisualBasic;
 using PacketLogger.Models.Filters;
 using ReactiveUI;
 
-namespace PacketLogger.ViewModels;
+namespace PacketLogger.ViewModels.Filters;
 
-/// <inheritdoc />
-public class PacketLogFilterViewModel : ViewModelBase, IDisposable
+/// <summary>
+/// A view model for FilterEntryView.
+/// </summary>
+public class FilterEntryViewModel : ViewModelBase
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="PacketLogFilterViewModel"/> class.
+    /// Initializes a new instance of the <see cref="FilterEntryViewModel"/> class.
     /// </summary>
-    public PacketLogFilterViewModel()
+    /// <param name="entry">The profile entry.</param>
+    public FilterEntryViewModel(FilterProfileEntry entry)
     {
-        Filters = new ObservableCollection<FilterCreator.FilterData>();
+        NewFilterType = FilterCreator.FilterType.PacketHeader;
+        Entry = entry;
         RemoveCurrent = ReactiveCommand.Create
         (
             () =>
@@ -32,14 +30,14 @@ public class PacketLogFilterViewModel : ViewModelBase, IDisposable
                 var selected = SelectedFilter;
                 if (selected is not null)
                 {
-                    var selectedIndex = Filters.IndexOf(selected);
-                    SelectedFilter = Filters.Count > selectedIndex + 1 ? Filters[selectedIndex + 1] : null;
+                    var selectedIndex = Entry.Filters.IndexOf(selected);
+                    SelectedFilter = Entry.Filters.Count > selectedIndex + 1 ? Entry.Filters[selectedIndex + 1] : null;
                     if (SelectedFilter is null && selectedIndex > 0)
                     {
-                        SelectedFilter = Filters[selectedIndex - 1];
+                        SelectedFilter = Entry.Filters[selectedIndex - 1];
                     }
 
-                    Filters.Remove(selected);
+                    Entry.Filters.Remove(selected);
                 }
             }
         );
@@ -51,7 +49,7 @@ public class PacketLogFilterViewModel : ViewModelBase, IDisposable
                 if (!string.IsNullOrEmpty(NewFilter))
                 {
                     var newFilter = new FilterCreator.FilterData(NewFilterType, NewFilter);
-                    Filters.Add(newFilter);
+                    Entry.Filters.Add(newFilter);
                     NewFilter = string.Empty;
                     SelectedFilter = newFilter;
                 }
@@ -60,19 +58,14 @@ public class PacketLogFilterViewModel : ViewModelBase, IDisposable
     }
 
     /// <summary>
-    /// Gets or sets whether the filters should whitelist or blacklist.
+    /// Gets the filter profile entry associated with this view model.
     /// </summary>
-    public bool Whitelist { get; set; }
+    public FilterProfileEntry Entry { get; }
 
     /// <summary>
     /// Gets or sets the currently selected filter.
     /// </summary>
     public FilterCreator.FilterData? SelectedFilter { get; set; }
-
-    /// <summary>
-    /// Gets or sets the filters list.
-    /// </summary>
-    public ObservableCollection<FilterCreator.FilterData> Filters { get; }
 
     /// <summary>
     /// Gets or sets the type of the new filter to add.
@@ -93,16 +86,4 @@ public class PacketLogFilterViewModel : ViewModelBase, IDisposable
     /// Gets the command to add new filter.
     /// </summary>
     public ReactiveCommand<Unit, Unit> AddNew { get; }
-
-    /// <summary>
-    /// Gets or sets whether the filter is active.
-    /// </summary>
-    public bool Active { get; set; } = true;
-
-    /// <inheritdoc />
-    public void Dispose()
-    {
-        RemoveCurrent.Dispose();
-        AddNew.Dispose();
-    }
 }

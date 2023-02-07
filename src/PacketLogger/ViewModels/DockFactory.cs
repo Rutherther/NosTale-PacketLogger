@@ -16,6 +16,7 @@ using Dock.Model.Mvvm.Controls;
 using NosSmooth.Comms.Local;
 using NosSmooth.Core.Stateful;
 using PacketLogger.Models;
+using PacketLogger.Models.Filters;
 using PacketLogger.Models.Packets;
 using PacketLogger.Views;
 using ReactiveUI;
@@ -29,6 +30,7 @@ namespace PacketLogger.ViewModels;
 public class DockFactory : Factory, IDisposable
 {
     private readonly StatefulRepository _repository;
+    private readonly FilterProfiles _filterProfiles;
     private readonly ObservableCollection<IPacketProvider> _providers;
     private readonly NostaleProcesses _processes;
     private readonly CommsInjector _injector;
@@ -39,18 +41,21 @@ public class DockFactory : Factory, IDisposable
     /// <summary>
     /// Initializes a new instance of the <see cref="DockFactory"/> class.
     /// </summary>
+    /// <param name="filterProfiles">The filter profiles.</param>
     /// <param name="providers">The providers.</param>
     /// <param name="processes">The nostale processes.</param>
     /// <param name="injector">The communications injector.</param>
     /// <param name="repository">The repository.</param>
     public DockFactory
     (
+        FilterProfiles filterProfiles,
         ObservableCollection<IPacketProvider> providers,
         NostaleProcesses processes,
         CommsInjector injector,
         StatefulRepository repository
     )
     {
+        _filterProfiles = filterProfiles;
         _providers = providers;
         _processes = processes;
         _repository = repository;
@@ -96,6 +101,7 @@ public class DockFactory : Factory, IDisposable
 
         var document = new DocumentViewModel
             (
+                _filterProfiles,
                 _injector,
                 _repository,
                 _providers,
@@ -138,6 +144,7 @@ public class DockFactory : Factory, IDisposable
                 var index = documentDock.VisibleDockables?.Count + 1;
                 var document = new DocumentViewModel
                     (
+                        _filterProfiles,
                         _injector,
                         _repository,
                         _providers,
@@ -160,6 +167,7 @@ public class DockFactory : Factory, IDisposable
     {
         var initialTab = new DocumentViewModel
             (
+                _filterProfiles,
                 _injector,
                 _repository,
                 _providers,

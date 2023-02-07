@@ -2,15 +2,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="clr-namespace:PacketLogger.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
-             x:Class="PacketLogger.Views.PacketLogFilterView">
+             xmlns:filters="clr-namespace:PacketLogger.ViewModels.Filters"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PacketLogger.Views.Filters.FilterEntryView">
     <Design.DataContext>
-        <vm:PacketLogFilterViewModel />
+        <filters:FilterEntryViewModel />
     </Design.DataContext>
 
     <Grid ColumnDefinitions="*,*" RowDefinitions="*, 40, 40, 40">
-        <DataGrid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Items="{Binding Filters}" IsReadOnly="True"
+        <DataGrid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Items="{Binding Entry.Filters}" IsReadOnly="True"
                   SelectedItem="{Binding SelectedFilter}"
                   CanUserReorderColumns="True" CanUserSortColumns="True" CanUserResizeColumns="True">
             <DataGrid.Styles>
@@ -24,11 +24,11 @@
             </DataGrid.Columns>
         </DataGrid>
         
-        <CheckBox Grid.Row="1" Grid.Column="0" Content="Filter active" IsChecked="{Binding Active}" />
+        <CheckBox Grid.Row="1" Grid.Column="0" Content="Filter active" IsChecked="{Binding Entry.Active}" />
 
         <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="*,*">
             <RadioButton Grid.Column="0" Content="Wl" GroupName="WlBl"></RadioButton>
-            <RadioButton Grid.Column="1" Content="Bl" GroupName="WlBl" IsChecked="{Binding !Whitelist}"></RadioButton>
+            <RadioButton Grid.Column="1" Content="Bl" GroupName="WlBl" IsChecked="{Binding !Entry.Whitelist}"></RadioButton>
         </Grid>
 
         <TextBox VerticalAlignment="Center" Margin="0, 0, 5, 0" Height="30" Grid.Row="2" Grid.Column="0"

@@ -13,7 +13,7 @@ using NosSmooth.PacketSerializer.Abstractions.Attributes;
 using PacketLogger.Models.Packets;
 using ReactiveUI;
 
-namespace PacketLogger.ViewModels;
+namespace PacketLogger.ViewModels.Sender;
 
 /// <inheritdoc />
 public class PacketSendSubViewModel : ViewModelBase, IDisposable

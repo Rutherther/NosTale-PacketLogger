@@ -1,23 +1,22 @@
 //
-//  PacketSendSubView.axaml.cs
+//  FilterChooseView.axaml.cs
 //
 //  Copyright (c) František Boháček. All rights reserved.
 //  Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using PropertyChanged;
 
-namespace PacketLogger.Views;
+namespace PacketLogger.Views.Filters;
 
 [DoNotNotify]
-public partial class PacketSendSubView : UserControl
+public partial class FilterChooseView : UserControl
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="PacketSendSubView"/> class.
+    /// Initializes a new instance of the <see cref="FilterChooseView"/> class.
     /// </summary>
-    public PacketSendSubView()
+    public FilterChooseView()
     {
         InitializeComponent();
     }
