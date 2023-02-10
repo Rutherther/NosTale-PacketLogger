@@ -22,8 +22,8 @@ public class FilterConfigViewModel : ViewModelBase
     public FilterConfigViewModel(FilterProfile filterProfile)
     {
         _filterProfile = filterProfile;
-        RecvEntryViewModel = new FilterEntryViewModel(filterProfile.RecvFilterEntry);
-        SendEntryViewModel = new FilterEntryViewModel(filterProfile.SendFilterEntry);
+        RecvEntryViewModel = new FilterEntryViewModel(filterProfile.RecvFilterEntry, null, null);
+        SendEntryViewModel = new FilterEntryViewModel(filterProfile.SendFilterEntry, null, null);
     }
 
     /// <summary>

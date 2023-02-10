@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reactive.Disposables;
+using DynamicData;
 using DynamicData.Binding;
 using PacketLogger.Models.Filters;
 using ReactiveUI;
@@ -20,6 +21,7 @@ public class FilterChooseViewModel : ViewModelBase, IDisposable
 {
     private FilterProfile _currentProfile = null!;
     private IDisposable? _cleanUp;
+    private FilterProfile _noProfile;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="FilterChooseViewModel"/> class.
@@ -30,6 +32,10 @@ public class FilterChooseViewModel : ViewModelBase, IDisposable
         RecvFilterSelected = true;
         CurrentProfile = currentProfile;
         CurrentFilter = CreateSendRecvFilter();
+        _noProfile = new FilterProfile(false)
+        {
+            Name = "No profile"
+        };
     }
 
     /// <summary>
@@ -40,9 +46,59 @@ public class FilterChooseViewModel : ViewModelBase, IDisposable
         get => _currentProfile;
         set
         {
+            if (value is null)
+            {
+                return;
+            }
+
+            if (value.Name == "No profile" && value != _noProfile)
+            {
+                CurrentProfile = _noProfile;
+                return;
+            }
+
+            var lastProfile = value;
+            if (value != _noProfile)
+            {
+                RecvEntryViewModel = new FilterEntryViewModel
+                (
+                    value.RecvFilterEntry,
+                    (data) =>
+                    {
+                        CopyCurrentToNoProfile(lastProfile);
+                        _noProfile.RecvFilterEntry.Filters.Add(data);
+                        CurrentProfile = _noProfile;
+                    },
+                    (data) =>
+                    {
+                        CopyCurrentToNoProfile(lastProfile);
+                        _noProfile.RecvFilterEntry.Filters.Remove(data);
+                        CurrentProfile = _noProfile;
+                    }
+                );
+                SendEntryViewModel = new FilterEntryViewModel
+                (
+                    value.SendFilterEntry,
+                    (data) =>
+                    {
+                        CopyCurrentToNoProfile(lastProfile);
+                        _noProfile.SendFilterEntry.Filters.Add(data);
+                        CurrentProfile = _noProfile;
+                    },
+                    (data) =>
+                    {
+                        CopyCurrentToNoProfile(lastProfile);
+                        _noProfile.SendFilterEntry.Filters.Remove(data);
+                        CurrentProfile = _noProfile;
+                    }
+                );
+            }
+            else
+            {
+                RecvEntryViewModel = new FilterEntryViewModel(value.RecvFilterEntry, null, null);
+                SendEntryViewModel = new FilterEntryViewModel(value.SendFilterEntry, null, null);
+            }
             _currentProfile = value;
-            RecvEntryViewModel = new FilterEntryViewModel(_currentProfile.RecvFilterEntry);
-            SendEntryViewModel = new FilterEntryViewModel(_currentProfile.SendFilterEntry);
 
             var recvWhenAny = _currentProfile.RecvFilterEntry.WhenAnyPropertyChanged("Active", "Whitelist")
                 .Subscribe((e) => OnChange());
@@ -60,6 +116,20 @@ public class FilterChooseViewModel : ViewModelBase, IDisposable
             _cleanUp = new CompositeDisposable(recvWhenAny, sendWhenAny, recvFilters, sendFilters);
             OnChange();
         }
+    }
+
+    private void CopyCurrentToNoProfile(FilterProfile lastProfile)
+    {
+        _noProfile.RecvFilterEntry.Filters.Clear();
+        _noProfile.RecvFilterEntry.Filters.AddRange(lastProfile.RecvFilterEntry.Filters);
+
+        _noProfile.SendFilterEntry.Filters.Clear();
+        _noProfile.SendFilterEntry.Filters.AddRange(lastProfile.SendFilterEntry.Filters);
+
+        _noProfile.RecvFilterEntry.Active = lastProfile.RecvFilterEntry.Active;
+        _noProfile.RecvFilterEntry.Whitelist = lastProfile.RecvFilterEntry.Whitelist;
+        _noProfile.SendFilterEntry.Active = lastProfile.SendFilterEntry.Active;
+        _noProfile.SendFilterEntry.Whitelist = lastProfile.SendFilterEntry.Whitelist;
     }
 
     /// <summary>

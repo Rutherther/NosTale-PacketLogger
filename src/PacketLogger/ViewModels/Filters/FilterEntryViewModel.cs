@@ -4,6 +4,7 @@
 //  Copyright (c) František Boháček. All rights reserved.
 //  Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
 using System.Reactive;
 using PacketLogger.Models.Filters;
 using ReactiveUI;
@@ -19,7 +20,10 @@ public class FilterEntryViewModel : ViewModelBase
     /// Initializes a new instance of the <see cref="FilterEntryViewModel"/> class.
     /// </summary>
     /// <param name="entry">The profile entry.</param>
-    public FilterEntryViewModel(FilterProfileEntry entry)
+    /// <param name="addNew">The action called upon adding new.</param>
+    /// <param name="remove">The action called upon removing the given filter data.</param>
+    public FilterEntryViewModel
+        (FilterProfileEntry entry, Action<FilterCreator.FilterData>? addNew, Action<FilterCreator.FilterData>? remove)
     {
         NewFilterType = FilterCreator.FilterType.PacketHeader;
         Entry = entry;
@@ -30,14 +34,24 @@ public class FilterEntryViewModel : ViewModelBase
                 var selected = SelectedFilter;
                 if (selected is not null)
                 {
-                    var selectedIndex = Entry.Filters.IndexOf(selected);
-                    SelectedFilter = Entry.Filters.Count > selectedIndex + 1 ? Entry.Filters[selectedIndex + 1] : null;
-                    if (SelectedFilter is null && selectedIndex > 0)
+                    if (remove is not null)
                     {
-                        SelectedFilter = Entry.Filters[selectedIndex - 1];
+                        SelectedFilter = null;
+                        remove(selected);
                     }
+                    else
+                    {
+                        var selectedIndex = Entry.Filters.IndexOf(selected);
+                        SelectedFilter = Entry.Filters.Count > selectedIndex + 1
+                            ? Entry.Filters[selectedIndex + 1]
+                            : null;
+                        if (SelectedFilter is null && selectedIndex > 0)
+                        {
+                            SelectedFilter = Entry.Filters[selectedIndex - 1];
+                        }
 
-                    Entry.Filters.Remove(selected);
+                        Entry.Filters.Remove(selected);
+                    }
                 }
             }
         );
@@ -49,7 +63,15 @@ public class FilterEntryViewModel : ViewModelBase
                 if (!string.IsNullOrEmpty(NewFilter))
                 {
                     var newFilter = new FilterCreator.FilterData(NewFilterType, NewFilter);
-                    Entry.Filters.Add(newFilter);
+                    if (addNew is not null)
+                    {
+                        addNew(newFilter);
+                    }
+                    else
+                    {
+                        Entry.Filters.Add(newFilter);
+                    }
+
                     NewFilter = string.Empty;
                     SelectedFilter = newFilter;
                 }
