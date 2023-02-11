@@ -30,6 +30,7 @@ namespace PacketLogger.ViewModels;
 public class DockFactory : Factory, IDisposable
 {
     private readonly StatefulRepository _repository;
+    private readonly IServiceProvider _services;
     private readonly FilterProfiles _filterProfiles;
     private readonly ObservableCollection<IPacketProvider> _providers;
     private readonly NostaleProcesses _processes;
@@ -41,6 +42,7 @@ public class DockFactory : Factory, IDisposable
     /// <summary>
     /// Initializes a new instance of the <see cref="DockFactory"/> class.
     /// </summary>
+    /// <param name="services">The services.</param>
     /// <param name="filterProfiles">The filter profiles.</param>
     /// <param name="providers">The providers.</param>
     /// <param name="processes">The nostale processes.</param>
@@ -48,6 +50,7 @@ public class DockFactory : Factory, IDisposable
     /// <param name="repository">The repository.</param>
     public DockFactory
     (
+        IServiceProvider services,
         FilterProfiles filterProfiles,
         ObservableCollection<IPacketProvider> providers,
         NostaleProcesses processes,
@@ -55,6 +58,7 @@ public class DockFactory : Factory, IDisposable
         StatefulRepository repository
     )
     {
+        _services = services;
         _filterProfiles = filterProfiles;
         _providers = providers;
         _processes = processes;
@@ -101,6 +105,7 @@ public class DockFactory : Factory, IDisposable
 
         var document = new DocumentViewModel
             (
+                _services,
                 _filterProfiles,
                 _injector,
                 _repository,
@@ -144,6 +149,7 @@ public class DockFactory : Factory, IDisposable
                 var index = documentDock.VisibleDockables?.Count + 1;
                 var document = new DocumentViewModel
                     (
+                        _services,
                         _filterProfiles,
                         _injector,
                         _repository,
@@ -167,6 +173,7 @@ public class DockFactory : Factory, IDisposable
     {
         var initialTab = new DocumentViewModel
             (
+                _services,
                 _filterProfiles,
                 _injector,
                 _repository,

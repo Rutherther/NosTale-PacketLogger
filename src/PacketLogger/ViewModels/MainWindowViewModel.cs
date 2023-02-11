@@ -25,6 +25,7 @@ using NosSmooth.Core.Extensions;
 using NosSmooth.PacketSerializer.Abstractions.Attributes;
 using NosSmooth.PacketSerializer.Extensions;
 using NosSmooth.PacketSerializer.Packets;
+using NosSmooth.Pcap;
 using PacketLogger.Models;
 using PacketLogger.Models.Filters;
 using PacketLogger.Models.Packets;
@@ -50,9 +51,11 @@ public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
             .AddSingleton<DockFactory>()
             .AddSingleton<NostaleProcesses>()
             .AddSingleton<ObservableCollection<IPacketProvider>>(_ => Providers)
+            .AddSingleton<ProcessTcpManager>()
+            .AddSingleton<PcapNostaleManager>()
             .AddNostaleCore()
             .AddStatefulInjector()
-            .AddStatefulEntity<CommsPacketProvider>()
+            .AddStatefulEntity<ClientPacketProvider>()
             .AddLocalComms()
             .AddPacketResponder(typeof(PacketResponder))
             .BuildServiceProvider();

@@ -88,7 +88,18 @@
                                             <Button Content="Connect"
                                                     Command="{Binding $parent[UserControl].DataContext.OpenProcess}"
                                                     IsEnabled="{Binding !$parent[UserControl].DataContext.Loading}"
-                                                    CommandParameter="{Binding }" />
+                                                    CommandParameter="{Binding}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                
+                                <DataGridTemplateColumn Header="Pcap">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="Sniff"
+                                                    Command="{Binding $parent[UserControl].DataContext.OpenPcap}"
+                                                    IsEnabled="{Binding !$parent[UserControl].DataContext.Loading}"
+                                                    CommandParameter="{Binding}" />
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>

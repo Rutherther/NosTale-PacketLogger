@@ -13,17 +13,20 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Dock.Model.Mvvm.Controls;
 using DynamicData.Binding;
+using Microsoft.Extensions.DependencyInjection;
 using NosSmooth.Comms.Data.Messages;
 using NosSmooth.Comms.Local;
 using NosSmooth.Core.Contracts;
 using NosSmooth.Core.Extensions;
 using NosSmooth.Core.Stateful;
+using NosSmooth.Pcap;
 using PacketLogger.Models;
 using PacketLogger.Models.Filters;
 using PacketLogger.Models.Packets;
@@ -48,6 +51,7 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
     /// <summary>
     /// Initializes a new instance of the <see cref="DocumentViewModel"/> class.
     /// </summary>
+    /// <param name="services">The services.</param>
     /// <param name="filterProfiles">The filter profiles.</param>
     /// <param name="injector">The injector.</param>
     /// <param name="repository">The repository.</param>
@@ -57,6 +61,7 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
     /// <param name="onDocumentUnloaded">The action to call on document unloaded/closed.</param>
     public DocumentViewModel
     (
+        IServiceProvider services,
         FilterProfiles filterProfiles,
         CommsInjector injector,
         StatefulRepository repository,
@@ -140,7 +145,7 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
 
                 var provider = new CommsPacketProvider(process, connection);
                 _packetProvider = provider;
-                repository.SetEntity<CommsPacketProvider>(connection.Client, provider);
+                repository.SetEntity<ClientPacketProvider>(connection.Client, provider);
 
                 var contractResult = await connection.Connection.ContractHanshake
                         (new HandshakeRequest("PacketLogger", true, false))
@@ -184,6 +189,42 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
             }
         );
 
+        OpenPcap = ReactiveCommand.CreateFromTask<NostaleProcess>
+        (
+            async process =>
+            {
+                Loading = true;
+                var encryptionKey = process.BrowserManager.IsInGame ? process.BrowserManager.NtClient.EncryptionKey : 0;
+                var client = ActivatorUtilities.CreateInstance<PcapNostaleClient>
+                    (services, process.Process, encryptionKey, Encoding.Default);
+
+                var provider = new PcapPacketProvider(process, client);
+                _packetProvider = provider;
+                repository.SetEntity<ClientPacketProvider>(client, provider);
+
+                _cleanUp = process.WhenPropertyChanged(x => x.CharacterString)
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Do
+                    (
+                        _ =>
+                        {
+                            Title = (process.BrowserManager.IsInGame
+                                ? process.BrowserManager.PlayerManager.Player.Name
+                                : null) ?? $"Not in game ({process.Process.Id})";
+                        }
+                    )
+                    .Subscribe();
+
+                await provider.Open();
+
+                NestedViewModel = new PacketLogViewModel(provider, filterProfiles);
+                Title = provider.Name;
+                Loading = false;
+                Loaded = true;
+                onDocumentLoaded(this);
+            }
+        );
+
         OpenSender = ReactiveCommand.Create<IPacketProvider>
         (
             provider =>
@@ -198,13 +239,15 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
 
         ClearError = ReactiveCommand.Create(() => Error = null);
 
-        OpenSettings = ReactiveCommand.Create(
+        OpenSettings = ReactiveCommand.Create
+        (
             () =>
             {
                 Title = "Settings";
                 NestedViewModel = new SettingsViewModel(filterProfiles);
                 Loaded = true;
-            });
+            }
+        );
     }
 
     /// <summary>
@@ -276,6 +319,11 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
     /// Gets the command for opening a process / connecting to a process.
     /// </summary>
     public ReactiveCommand<NostaleProcess, Unit> OpenProcess { get; }
+
+    /// <summary>
+    /// Gets the command for opening a process / connecting to a process.
+    /// </summary>
+    public ReactiveCommand<NostaleProcess, Unit> OpenPcap { get; }
 
     /// <summary>
     /// Get open settings command.

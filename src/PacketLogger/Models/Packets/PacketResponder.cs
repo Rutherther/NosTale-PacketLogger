@@ -19,13 +19,13 @@ namespace PacketLogger.Models.Packets;
 /// <inheritdoc />
 public class PacketResponder : IRawPacketResponder
 {
-    private readonly CommsPacketProvider _provider;
+    private readonly ClientPacketProvider _provider;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PacketResponder"/> class.
     /// </summary>
     /// <param name="provider">The provider.</param>
-    public PacketResponder(CommsPacketProvider provider)
+    public PacketResponder(ClientPacketProvider provider)
     {
         _provider = provider;
     }
