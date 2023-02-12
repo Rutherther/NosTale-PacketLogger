@@ -194,7 +194,9 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
             async process =>
             {
                 Loading = true;
-                var encryptionKey = process.BrowserManager.IsInGame ? process.BrowserManager.NtClient.EncryptionKey : 0;
+
+                // var encryptionKey = process.BrowserManager.IsInGame ? process.BrowserManager.NtClient.EncryptionKey : 0;
+                var encryptionKey = 0;
                 var client = ActivatorUtilities.CreateInstance<PcapNostaleClient>
                     (services, process.Process, encryptionKey, Encoding.Default);
 

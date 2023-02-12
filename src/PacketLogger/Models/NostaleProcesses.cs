@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using NosSmooth.Comms.Local;
 using NosSmooth.Core.Extensions;
 using NosSmooth.LocalBinding;
+using NosSmooth.LocalBinding.Errors;
 using NosSmooth.LocalBinding.Options;
 using ReactiveUI;
 
@@ -101,7 +102,8 @@ public class NostaleProcesses : IDisposable
                     new UnitManagerOptions()
                 );
                 var result = nosBrowserManager.Initialize();
-                if (result.IsSuccess)
+                if (result.IsSuccess || (result.Error is CouldNotInitializeModuleError moduleError
+                    && moduleError.Module.Name.Contains("NtClient")))
                 {
                     RxApp.MainThreadScheduler.Schedule
                         (() => Processes.Add(new NostaleProcess(process, nosBrowserManager)));
