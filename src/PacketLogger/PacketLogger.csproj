@@ -31,13 +31,13 @@
     <PackageReference Include="DataBox" Version="0.10.13" />
     <PackageReference Include="Dock.Avalonia" Version="0.10.18.1" />
     <PackageReference Include="Dock.Model.Mvvm" Version="0.10.18.1" />
-    <PackageReference Include="NosSmooth.Comms.Local" Version="1.2.1">
+    <PackageReference Include="NosSmooth.Comms.Local" Version="1.2.3-main4155764956">
       <IncludeAssets>All</IncludeAssets>
       <PrivateAssets>None</PrivateAssets>
     </PackageReference>
     <PackageReference Include="NosSmooth.Core" Version="4.0.2" />
     <PackageReference Include="NosSmooth.Cryptography" Version="1.0.0-main4152899734" />
-    <PackageReference Include="NosSmooth.LocalBinding" Version="1.1.0-main4152737026" />
+    <PackageReference Include="NosSmooth.LocalBinding" Version="1.1.0-main4155845215" />
     <PackageReference Include="NosSmooth.PacketSerializer.Abstractions" Version="1.3.1" />
     <PackageReference Include="NosSmooth.Pcap" Version="1.0.0-main4152899734" />
     <PackageReference Include="Projektanker.Icons.Avalonia" Version="5.8.0" />
