@@ -28,8 +28,4 @@ public class PcapPacketProvider : ClientPacketProvider
 
     /// <inheritdoc />
     public override bool IsOpen => true;
-
-    /// <inheritdoc />
-    public override Task<Result> Close()
-        => Task.FromResult(Result.FromSuccess());
 }
