@@ -40,13 +40,13 @@ public class PacketLogViewModel : ViewModelBase, IDisposable
     public PacketLogViewModel(IPacketProvider packetProvider, FilterProfiles filterProfiles)
     {
         _filterProfiles = filterProfiles;
-        FilterChoose = new FilterChooseViewModel(new FilterProfile(false));
-        FilterChoose.CurrentProfile = filterProfiles.DefaultFilterEnabled
-            ? filterProfiles.DefaultProfile
-            : new FilterProfile(false)
-            {
-                Name = "No profile"
-            };
+        FilterChoose = new FilterChooseViewModel
+        (
+            filterProfiles.DefaultFilterEnabled
+                ? filterProfiles.DefaultProfile
+                : filterProfiles.NoProfile,
+            filterProfiles.SelectableProfiles.Last()
+        );
         Provider = packetProvider;
 
         var dynamicFilter = FilterChoose.WhenValueChanged(x => x.CurrentFilter)

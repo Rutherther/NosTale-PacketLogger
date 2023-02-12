@@ -35,7 +35,7 @@ using ReactiveUI;
 namespace PacketLogger.ViewModels;
 
 /// <inheritdoc />
-public class MainWindowViewModel : ViewModelBase, INotifyPropertyChanged
+public class MainWindowViewModel : ViewModelBase
 {
     private readonly DockFactory _factory;
     private readonly NostaleProcesses _processes;

@@ -6,6 +6,7 @@
 
 using System;
 using System.Reactive;
+using System.Reactive.Disposables;
 using PacketLogger.Models.Filters;
 using ReactiveUI;
 
@@ -14,17 +15,27 @@ namespace PacketLogger.ViewModels.Filters;
 /// <summary>
 /// A view model for FilterEntryView.
 /// </summary>
-public class FilterEntryViewModel : ViewModelBase
+public class FilterEntryViewModel : ViewModelBase, IDisposable
 {
+    private readonly Action<(bool Active, bool Whitelist)>? _whitelistActiveChanged;
+    private readonly IDisposable _cleanUp;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="FilterEntryViewModel"/> class.
     /// </summary>
     /// <param name="entry">The profile entry.</param>
     /// <param name="addNew">The action called upon adding new.</param>
     /// <param name="remove">The action called upon removing the given filter data.</param>
+    /// <param name="whitelistActiveChanged">Called when whitelist or active has been changed.</param>
     public FilterEntryViewModel
-        (FilterProfileEntry entry, Action<FilterCreator.FilterData>? addNew, Action<FilterCreator.FilterData>? remove)
+    (
+        FilterProfileEntry entry,
+        Action<FilterCreator.FilterData>? addNew = default,
+        Action<FilterCreator.FilterData>? remove = default,
+        Action<(bool Active, bool Whitelist)>? whitelistActiveChanged = default
+    )
     {
+        _whitelistActiveChanged = whitelistActiveChanged;
         NewFilterType = FilterCreator.FilterType.PacketHeader;
         Entry = entry;
         RemoveCurrent = ReactiveCommand.Create
@@ -77,6 +88,52 @@ public class FilterEntryViewModel : ViewModelBase
                 }
             }
         );
+
+        var whitelistChanged = Entry.WhenAnyValue(x => x.Whitelist)
+            .Subscribe(_ => this.RaisePropertyChanged("Whitelist"));
+
+        var activeChanged = Entry.WhenAnyValue(x => x.Active)
+            .Subscribe(_ => this.RaisePropertyChanged("Active"));
+
+        _cleanUp = new CompositeDisposable(whitelistChanged, activeChanged);
+    }
+
+    /// <summary>
+    /// Gets or sets whether whitelist or blacklist.
+    /// </summary>
+    public bool Whitelist
+    {
+        get => Entry.Whitelist;
+        set
+        {
+            if (_whitelistActiveChanged is not null)
+            {
+                _whitelistActiveChanged((Entry.Active, value));
+            }
+            else
+            {
+                Entry.Whitelist = value;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets whether the filter entry is active.
+    /// </summary>
+    public bool Active
+    {
+        get => Entry.Active;
+        set
+        {
+            if (_whitelistActiveChanged is not null)
+            {
+                _whitelistActiveChanged((value, Entry.Whitelist));
+            }
+            else
+            {
+                Entry.Active = value;
+            }
+        }
     }
 
     /// <summary>
@@ -108,4 +165,17 @@ public class FilterEntryViewModel : ViewModelBase
     /// Gets the command to add new filter.
     /// </summary>
     public ReactiveCommand<Unit, Unit> AddNew { get; }
+
+    /// <summary>
+    /// Gets radio group.
+    /// </summary>
+    public string RadioGroup { get; } = Guid.NewGuid().ToString();
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        _cleanUp.Dispose();
+        RemoveCurrent.Dispose();
+        AddNew.Dispose();
+    }
 }

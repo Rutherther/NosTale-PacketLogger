@@ -3,16 +3,26 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:filters="clr-namespace:PacketLogger.ViewModels.Filters"
+             xmlns:converters="clr-namespace:PacketLogger.Converters"
+             xmlns:system="clr-namespace:System;assembly=System.Runtime"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PacketLogger.Views.Filters.FilterEntryView">
     <Design.DataContext>
         <filters:FilterEntryViewModel />
     </Design.DataContext>
+    <UserControl.Resources>
+        <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
+        <system:Boolean x:Key="True">True</system:Boolean>
+        <system:Boolean x:Key="False">False</system:Boolean>
+    </UserControl.Resources>
 
     <Grid ColumnDefinitions="*,*" RowDefinitions="*, 40, 40, 40">
         <DataGrid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Items="{Binding Entry.Filters}" IsReadOnly="True"
                   SelectedItem="{Binding SelectedFilter}"
                   CanUserReorderColumns="True" CanUserSortColumns="True" CanUserResizeColumns="True">
+            <DataGrid.KeyBindings>
+                <KeyBinding Gesture="Delete" Command="{Binding RemoveCurrent}" />
+            </DataGrid.KeyBindings>
             <DataGrid.Styles>
                 <Style Selector="DataGridColumnHeader">
                     <Setter Property="MinHeight" Value="24" />
@@ -23,16 +33,21 @@
                 <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*" MinWidth="100" />
             </DataGrid.Columns>
         </DataGrid>
-        
-        <CheckBox Grid.Row="1" Grid.Column="0" Content="Filter active" IsChecked="{Binding Entry.Active}" />
+
+        <CheckBox Grid.Row="1" Grid.Column="0" Content="Filter active" IsChecked="{Binding Active}" />
 
         <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="*,*">
-            <RadioButton Grid.Column="0" Content="Wl" GroupName="WlBl"></RadioButton>
-            <RadioButton Grid.Column="1" Content="Bl" GroupName="WlBl" IsChecked="{Binding !Entry.Whitelist}"></RadioButton>
+            <RadioButton Grid.Column="0" Content="Wl" GroupName="{Binding RadioGroup}"
+                         IsChecked="{Binding Whitelist, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={StaticResource True}}" />
+            <RadioButton Grid.Column="1" Content="Bl" GroupName="{Binding RadioGroup}"
+                         IsChecked="{Binding Whitelist, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={StaticResource False}}" />
         </Grid>
 
         <TextBox VerticalAlignment="Center" Margin="0, 0, 5, 0" Height="30" Grid.Row="2" Grid.Column="0"
                  Text="{Binding NewFilter}">
+            <TextBox.KeyBindings>
+                <KeyBinding Gesture="Enter" Command="{Binding AddNew}" />
+            </TextBox.KeyBindings>
         </TextBox>
         <ComboBox x:Name="FilterType" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="5, 0, 0, 0"
                   Height="32" Grid.Row="2"
@@ -41,6 +56,6 @@
         <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="0, 0, 5, 0" Grid.Row="3"
                 Grid.Column="0" Content="Remove" Command="{Binding RemoveCurrent}" />
         <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="5, 0, 0,0" Grid.Row="3"
-                Grid.Column="1" Content="Add" Command="{Binding AddNew}" IsDefault="True" />
+                Grid.Column="1" Content="Add" Command="{Binding AddNew}" />
     </Grid>
 </UserControl>

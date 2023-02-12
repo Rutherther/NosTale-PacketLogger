@@ -29,7 +29,7 @@ public class FilterProfiles
         AllProfiles = new ObservableCollection<FilterProfile>();
         SelectableProfiles = new ObservableCollection<FilterProfile>();
 
-        SelectableProfiles.Add(new FilterProfile(false)
+        SelectableProfiles.Add(NoProfile = new FilterProfile(false)
         {
             Name = "No profile"
         });
@@ -72,6 +72,11 @@ public class FilterProfiles
     /// Gets or sets the collection of profiles.
     /// </summary>
     public ObservableCollection<FilterProfile> AllProfiles { get; }
+
+    /// <summary>
+    /// Gets or sets the profile used as no profile.
+    /// </summary>
+    public FilterProfile NoProfile { get; set; }
 
     /// <summary>
     /// Add the given profile.
