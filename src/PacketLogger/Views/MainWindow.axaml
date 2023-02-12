@@ -41,6 +41,7 @@
                 <MenuItem Header="Save All As..." Command="{Binding SaveAll}" />
                 <Separator />
                 <MenuItem Header="Open Settings" Command="{Binding OpenSettings}" />
+                <MenuItem Header="Save Settings" Command="{Binding SaveSettings}" />
                 <MenuItem Header="Exit" Command="{Binding QuitApplication}" />
             </MenuItem>
             <MenuItem Header="_Tools">

@@ -36,5 +36,5 @@ public class FilterProfileEntry : ObservableObject
     /// <summary>
     /// Gets or sets the filters list.
     /// </summary>
-    public ObservableCollection<FilterCreator.FilterData> Filters { get; }
+    public ObservableCollection<FilterCreator.FilterData> Filters { get; set; }
 }

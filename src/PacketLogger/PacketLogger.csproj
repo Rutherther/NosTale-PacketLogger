@@ -42,6 +42,7 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Remora.Results" Version="7.2.3" />
+    <PackageReference Include="System.Text.Json" Version="7.0.1" />
     <PackageReference Include="XamlNameReferenceGenerator" Version="1.5.1" />
   </ItemGroup>
 

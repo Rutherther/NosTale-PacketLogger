@@ -41,10 +41,10 @@ public class FilterProfile : ObservableObject
     /// <summary>
     /// Gets or sets the receive filter entry.
     /// </summary>
-    public FilterProfileEntry RecvFilterEntry { get; }
+    public FilterProfileEntry RecvFilterEntry { get; set; }
 
     /// <summary>
     /// Gets or sets the send filter entry.
     /// </summary>
-    public FilterProfileEntry SendFilterEntry { get; }
+    public FilterProfileEntry SendFilterEntry { get; set; }
 }

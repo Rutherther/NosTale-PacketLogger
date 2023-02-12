@@ -14,6 +14,7 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reflection;
+using System.Text.Json;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -45,9 +46,21 @@ public class MainWindowViewModel : ViewModelBase
     /// </summary>
     public MainWindowViewModel()
     {
+        var filterProfiles = new FilterProfiles();
+        if (Path.Exists("settings.json"))
+        {
+            using var file = File.OpenRead("settings.json");
+            var deserialized = JsonSerializer.Deserialize<FilterProfiles>(file);
+
+            if (deserialized is not null)
+            {
+                filterProfiles = deserialized;
+            }
+        }
+
         var services = new ServiceCollection()
             .AddLogging(b => b.ClearProviders().AddConsole())
-            .AddSingleton<FilterProfiles>()
+            .AddSingleton<FilterProfiles>(_ => filterProfiles)
             .AddSingleton<DockFactory>()
             .AddSingleton<NostaleProcesses>()
             .AddSingleton<ObservableCollection<IPacketProvider>>(_ => Providers)
@@ -165,6 +178,15 @@ public class MainWindowViewModel : ViewModelBase
             }
         );
 
+        SaveSettings = ReactiveCommand.CreateFromTask
+        (
+            async () =>
+            {
+                using var file = File.Open("settings.json", FileMode.Create);
+                await JsonSerializer.SerializeAsync(file, filterProfiles);
+            }
+        );
+
         OpenFile = ReactiveCommand.Create
             (() => _factory.CreateLoadedDocument(doc => doc.OpenFile.Execute(Unit.Default)));
 
@@ -246,4 +268,9 @@ public class MainWindowViewModel : ViewModelBase
     /// Gets the command used for opening settings.
     /// </summary>
     public ReactiveCommand<Unit, Unit> OpenSettings { get; }
+
+    /// <summary>
+    /// Gets the command used for saving settings.
+    /// </summary>
+    public ReactiveCommand<Unit, Unit> SaveSettings { get; }
 }
