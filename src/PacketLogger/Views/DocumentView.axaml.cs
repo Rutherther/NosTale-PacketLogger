@@ -11,6 +11,9 @@ using PropertyChanged;
 
 namespace PacketLogger.Views;
 
+/// <summary>
+/// A view of document tab.
+/// </summary>
 [DoNotNotify]
 public partial class DocumentView : UserControl
 {

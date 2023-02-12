@@ -13,6 +13,9 @@ using PropertyChanged;
 
 namespace PacketLogger;
 
+/// <summary>
+/// The application.
+/// </summary>
 [DoNotNotify]
 public partial class App : Application
 {

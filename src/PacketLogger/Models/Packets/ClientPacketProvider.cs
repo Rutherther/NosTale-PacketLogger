@@ -50,9 +50,6 @@ public abstract class ClientPacketProvider : ReactiveObject, IPacketProvider
     }
 
     /// <inheritdoc />
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    /// <inheritdoc />
     public string Name => (_process.BrowserManager.IsInGame
         ? _process.BrowserManager.PlayerManager.Player.Name
         : null) ?? $"Not in game ({_process.Process.Id})";
@@ -106,7 +103,6 @@ public abstract class ClientPacketProvider : ReactiveObject, IPacketProvider
     /// Add the given packets from an event.
     /// </summary>
     /// <param name="packetArgs">The packet event args.</param>
-    /// <typeparam name="TPacket">The type of the deserialized packet.</typeparam>
     internal void AddPacket(PacketEventArgs packetArgs)
     {
         var index = Interlocked.Increment(ref _currentIndex);

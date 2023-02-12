@@ -13,6 +13,9 @@ using PropertyChanged;
 
 namespace PacketLogger.Views.Filters;
 
+/// <summary>
+/// A view for modifying filter entry.
+/// </summary>
 [DoNotNotify]
 public partial class FilterEntryView : UserControl
 {

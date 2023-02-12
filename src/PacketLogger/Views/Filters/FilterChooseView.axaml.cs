@@ -10,6 +10,9 @@ using PropertyChanged;
 
 namespace PacketLogger.Views.Filters;
 
+/// <summary>
+/// A view supporting choosing a filter.
+/// </summary>
 [DoNotNotify]
 public partial class FilterChooseView : UserControl
 {

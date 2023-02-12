@@ -10,6 +10,9 @@ using PropertyChanged;
 
 namespace PacketLogger.Views.Settings;
 
+/// <summary>
+/// A view for configuration.
+/// </summary>
 [DoNotNotify]
 public partial class SettingsView : UserControl
 {

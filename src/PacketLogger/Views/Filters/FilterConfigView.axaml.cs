@@ -10,6 +10,9 @@ using PropertyChanged;
 
 namespace PacketLogger.Views.Filters;
 
+/// <summary>
+/// A view for configuring a filter profile.
+/// </summary>
 [DoNotNotify]
 public partial class FilterConfigView : UserControl
 {

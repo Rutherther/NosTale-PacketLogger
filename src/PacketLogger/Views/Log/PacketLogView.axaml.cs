@@ -11,6 +11,9 @@ using PropertyChanged;
 
 namespace PacketLogger.Views.Log;
 
+/// <summary>
+/// A view of a packet log.
+/// </summary>
 [DoNotNotify]
 public partial class PacketLogView : UserControl
 {

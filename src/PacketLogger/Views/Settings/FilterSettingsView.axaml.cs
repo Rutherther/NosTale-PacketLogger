@@ -11,6 +11,9 @@ using PropertyChanged;
 
 namespace PacketLogger.Views.Settings;
 
+/// <summary>
+/// A view for configuring filter profiles.
+/// </summary>
 [DoNotNotify]
 public partial class FilterSettingsView : UserControl
 {

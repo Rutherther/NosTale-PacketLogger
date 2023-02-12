@@ -25,7 +25,6 @@ namespace PacketLogger.Models.Packets;
 public class CommsPacketProvider : ClientPacketProvider
 {
     private readonly Comms _comms;
-    private long _currentIndex;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CommsPacketProvider"/> class.

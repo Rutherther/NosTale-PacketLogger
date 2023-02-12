@@ -11,6 +11,9 @@ using PropertyChanged;
 
 namespace PacketLogger.Views;
 
+/// <summary>
+/// A floating window styled same as main window.
+/// </summary>
 [DoNotNotify]
 public partial class HostWindow : Dock.Avalonia.Controls.HostWindow
 {

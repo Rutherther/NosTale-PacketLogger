@@ -9,6 +9,9 @@ using PropertyChanged;
 
 namespace PacketLogger.Views;
 
+/// <summary>
+/// The main window.
+/// </summary>
 [DoNotNotify]
 public partial class MainWindow : Window
 {

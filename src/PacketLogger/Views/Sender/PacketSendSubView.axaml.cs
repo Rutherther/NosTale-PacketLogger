@@ -10,6 +10,9 @@ using PropertyChanged;
 
 namespace PacketLogger.Views.Sender;
 
+/// <summary>
+/// A view for sending packets inside of <see cref="PacketSenderView"/>.
+/// </summary>
 [DoNotNotify]
 public partial class PacketSendSubView : UserControl
 {
