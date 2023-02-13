@@ -336,8 +336,13 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
     public override bool OnClose()
     {
         _onDocumentUnloaded(this);
-        _packetProvider?.Close().GetAwaiter().GetResult();
+        var result = _packetProvider?.Close().GetAwaiter().GetResult();
         Dispose();
+
+        if (!(result?.IsSuccess ?? true))
+        {
+            Console.WriteLine(result.ToFullString());
+        }
         return base.OnClose();
     }
 
