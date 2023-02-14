@@ -174,8 +174,8 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
                     (
                         _ =>
                         {
-                            Title = (process.BrowserManager.IsInGame
-                                ? process.BrowserManager.PlayerManager.Player.Name
+                            Title = (process.BrowserManager.IsInGame.Get()
+                                ? process.BrowserManager.PlayerManager.Get().Player.Name
                                 : null) ?? $"Not in game ({process.Process.Id})";
                         }
                     )
@@ -195,10 +195,15 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
             {
                 Loading = true;
 
-                // var encryptionKey = process.BrowserManager.IsInGame ? process.BrowserManager.NtClient.EncryptionKey : 0;
-                var encryptionKey = 0;
+                var initialEncryptionKey = 0;
+                if (process.BrowserManager.IsInGame.Get())
+                {
+                    var encryptionKeyOptional = process.BrowserManager.NtClient.Map(client => client.EncryptionKey);
+                    encryptionKeyOptional.TryGet(out initialEncryptionKey);
+                }
+
                 var client = ActivatorUtilities.CreateInstance<PcapNostaleClient>
-                    (services, process.Process, encryptionKey, Encoding.Default);
+                    (services, process.Process, initialEncryptionKey, Encoding.Default);
 
                 var provider = new PcapPacketProvider(process, client);
                 _packetProvider = provider;
@@ -210,8 +215,8 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
                     (
                         _ =>
                         {
-                            Title = (process.BrowserManager.IsInGame
-                                ? process.BrowserManager.PlayerManager.Player.Name
+                            Title = (process.BrowserManager.IsInGame.Get()
+                                ? process.BrowserManager.PlayerManager.Get().Player.Name
                                 : null) ?? $"Not in game ({process.Process.Id})";
                         }
                     )
@@ -260,7 +265,7 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
     /// <summary>
     /// Gets the processes observable.
     /// </summary>
-    public ObservableCollection<NostaleProcess> Processes => _processes.Processes;
+    public NostaleProcesses Processes => _processes;
 
     /// <summary>
     /// Gets packet provider.

@@ -50,8 +50,8 @@ public abstract class ClientPacketProvider : ReactiveObject, IPacketProvider
     }
 
     /// <inheritdoc />
-    public string Name => (_process.BrowserManager.IsInGame
-        ? _process.BrowserManager.PlayerManager.Player.Name
+    public string Name => (_process.BrowserManager.IsInGame.Get()
+        ? _process.BrowserManager.PlayerManager.Get().Player.Name
         : null) ?? $"Not in game ({_process.Process.Id})";
 
     /// <inheritdoc />

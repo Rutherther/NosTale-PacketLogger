@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
@@ -35,19 +35,20 @@
       <IncludeAssets>All</IncludeAssets>
       <PrivateAssets>None</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="NosSmooth.Core" Version="4.0.2" />
-    <PackageReference Include="NosSmooth.Injector" Version="1.1.1-main4158362079" />
-    <PackageReference Include="NosSmooth.Cryptography" Version="1.0.0-main4161214102" />
-    <PackageReference Include="NosSmooth.LocalBinding" Version="1.1.0-main4155845215" />
+    <PackageReference Include="NosSmooth.Core" Version="4.0.3" />
+    <PackageReference Include="NosSmooth.Injector" Version="1.1.1" />
+    <PackageReference Include="NosSmooth.Cryptography" Version="1.0.0" />
+    <PackageReference Include="NosSmooth.LocalBinding" Version="2.0.0" />
     <PackageReference Include="NosSmooth.PacketSerializer.Abstractions" Version="1.3.1" />
-    <PackageReference Include="NosSmooth.Pcap" Version="1.0.0-main4161214102" />
-    <PackageReference Include="Projektanker.Icons.Avalonia" Version="5.8.0" />
-    <PackageReference Include="Projektanker.Icons.Avalonia.MaterialDesign" Version="5.8.0" />
+    <PackageReference Include="NosSmooth.Pcap" Version="1.0.0" />
+    <PackageReference Include="Projektanker.Icons.Avalonia" Version="5.9.0" />
+    <PackageReference Include="Projektanker.Icons.Avalonia.MaterialDesign" Version="5.9.0" />
     <PackageReference Include="PropertyChanged.Fody" Version="4.1.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Remora.Results" Version="7.2.3" />
-    <PackageReference Include="System.Text.Json" Version="7.0.1" />
+    <PackageReference Include="System.Management" Version="7.0.0" />
+    <PackageReference Include="System.Text.Json" Version="7.0.2" />
     <PackageReference Include="XamlNameReferenceGenerator" Version="1.5.1" />
   </ItemGroup>
 

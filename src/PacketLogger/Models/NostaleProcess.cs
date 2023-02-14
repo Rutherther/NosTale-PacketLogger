@@ -62,13 +62,13 @@ public class NostaleProcess : ObservableObject
     {
         try
         {
-            if (BrowserManager.IsInGame != _wasInGame)
+            if (BrowserManager.IsInGame.Get() != _wasInGame)
             {
                 OnPropertyChanging(nameof(BrowserManager));
                 OnPropertyChanged(nameof(BrowserManager));
             }
 
-            var currentCharacterName = BrowserManager.IsInGame ? BrowserManager.PlayerManager.Player.Name : null;
+            var currentCharacterName = BrowserManager.IsInGame.Get() ? BrowserManager.PlayerManager.Get().Player.Name : null;
             var changed = _lastCharacterName != currentCharacterName;
 
             if (changed)
@@ -76,7 +76,7 @@ public class NostaleProcess : ObservableObject
                 OnPropertyChanging(nameof(CharacterString));
             }
 
-            _wasInGame = BrowserManager.IsInGame;
+            _wasInGame = BrowserManager.IsInGame.Get();
             _lastCharacterName = currentCharacterName;
 
             if (changed)
