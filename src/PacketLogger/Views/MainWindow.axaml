@@ -48,7 +48,7 @@
                 <MenuItem Header="_Packet Sender" Command="{Binding Connect}" Items="{Binding Providers}">
                     <MenuItem.Styles>
                         <Style Selector="MenuItem">
-                            <Setter Property="Header" Value="{Binding Name}" />
+                            <Setter Property="Header" Value="{Binding DocumentTitle}" />
                             <Setter Property="Command" Value="{Binding OpenSender}" />
                             <Setter Property="CommandParameter"
                                     Value="{Binding SelectedItems, RelativeSource={RelativeSource Self}}" />

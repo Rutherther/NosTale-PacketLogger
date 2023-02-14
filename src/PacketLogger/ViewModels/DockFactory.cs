@@ -18,6 +18,7 @@ using NosSmooth.Core.Stateful;
 using PacketLogger.Models;
 using PacketLogger.Models.Filters;
 using PacketLogger.Models.Packets;
+using PacketLogger.Models.Titles;
 using PacketLogger.Views;
 using ReactiveUI;
 using HostWindow = PacketLogger.Views.HostWindow;
@@ -35,6 +36,7 @@ public class DockFactory : Factory, IDisposable
     private readonly ObservableCollection<IPacketProvider> _providers;
     private readonly NostaleProcesses _processes;
     private readonly CommsInjector _injector;
+    private readonly NumberedTitleGenerator _titleGenerator;
 
     private IRootDock? _rootDock;
     private IDocumentDock? _documentDock;
@@ -58,6 +60,7 @@ public class DockFactory : Factory, IDisposable
         StatefulRepository repository
     )
     {
+        _titleGenerator = new NumberedTitleGenerator();
         _services = services;
         _filterProfiles = filterProfiles;
         _providers = providers;
@@ -111,10 +114,11 @@ public class DockFactory : Factory, IDisposable
                 _repository,
                 _providers,
                 _processes,
+                _titleGenerator,
                 OnDocumentLoaded,
                 OnDocumentClosed
             )
-            { Id = $"New tab", Title = $"New tab" };
+            { Id = Guid.NewGuid().ToString() };
 
         var observable = load(document);
         observable.Subscribe
@@ -155,10 +159,11 @@ public class DockFactory : Factory, IDisposable
                         _repository,
                         _providers,
                         _processes,
+                        _titleGenerator,
                         OnDocumentLoaded,
                         OnDocumentClosed
                     )
-                    { Id = $"New tab {index}", Title = $"New tab {index}" };
+                    { Id = $"New tab {index}" };
 
                 AddDockable(documentDock, document);
                 SetActiveDockable(document);
@@ -179,10 +184,11 @@ public class DockFactory : Factory, IDisposable
                 _repository,
                 _providers,
                 _processes,
+                _titleGenerator,
                 OnDocumentLoaded,
                 OnDocumentClosed
             )
-            { Id = $"New tab", Title = $"New tab" };
+            { Id = $"New tab" };
         var documentDock = CreateDocumentDock();
         documentDock.IsCollapsable = false;
         documentDock.ActiveDockable = initialTab;

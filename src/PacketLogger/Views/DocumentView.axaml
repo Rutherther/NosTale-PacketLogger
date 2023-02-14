@@ -12,7 +12,7 @@
     </Design.DataContext>
 
     <Grid>
-        <Border Grid.Row="1" IsVisible="{Binding !Loaded}"
+        <Border IsVisible="{Binding !Loaded}"
                 MaxWidth="1000" MaxHeight="600"
                 CornerRadius="25"
                 Background="{DynamicResource SystemControlPageBackgroundChromeLowBrush}">
@@ -116,7 +116,7 @@
                         <TextBlock FontSize="30" Margin="0,0,0,5" Text="Open a sender for" />
                         <DataGrid Margin="0,0,30,0" Items="{Binding Providers}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Tab" Binding="{Binding Name}" />
+                                <DataGridTextColumn Header="Tab" Binding="{Binding DocumentTitle}" />
                                 <DataGridTemplateColumn Header="Open">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>

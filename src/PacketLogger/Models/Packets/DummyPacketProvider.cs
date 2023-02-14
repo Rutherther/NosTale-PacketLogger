@@ -38,6 +38,11 @@ public class DummyPacketProvider : IPacketProvider, IDisposable
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
 
+    /// <summary>
+    /// Gets or sets title of document.
+    /// </summary>
+    public string DocumentTitle { get; set; } = string.Empty;
+
     /// <inheritdoc />
     public bool LogReceived
     {

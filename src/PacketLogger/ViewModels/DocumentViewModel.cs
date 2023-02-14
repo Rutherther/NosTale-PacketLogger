@@ -30,6 +30,7 @@ using NosSmooth.Pcap;
 using PacketLogger.Models;
 using PacketLogger.Models.Filters;
 using PacketLogger.Models.Packets;
+using PacketLogger.Models.Titles;
 using PacketLogger.ViewModels.Log;
 using PacketLogger.ViewModels.Sender;
 using PacketLogger.ViewModels.Settings;
@@ -47,6 +48,7 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
     private CancellationTokenSource _ctSource;
     private IPacketProvider? _packetProvider;
     private IDisposable? _cleanUp;
+    private NumberedTitleGenerator.TitleHandle _titleHandle;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DocumentViewModel"/> class.
@@ -57,6 +59,7 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
     /// <param name="repository">The repository.</param>
     /// <param name="providers">The providers.</param>
     /// <param name="processes">The NosTale processes collection.</param>
+    /// <param name="titleGenerator">The title generator.</param>
     /// <param name="onDocumentLoaded">The action to call on loaded.</param>
     /// <param name="onDocumentUnloaded">The action to call on document unloaded/closed.</param>
     public DocumentViewModel
@@ -67,10 +70,28 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
         StatefulRepository repository,
         ObservableCollection<IPacketProvider> providers,
         NostaleProcesses processes,
+        NumberedTitleGenerator titleGenerator,
         Action<DocumentViewModel> onDocumentLoaded,
         Action<DocumentViewModel> onDocumentUnloaded
     )
     {
+        _titleHandle = titleGenerator.AddTitle
+        (
+            title => Title = title,
+            Observable.Empty<string>(),
+            "New tab"
+        );
+
+        _cleanUp = this.WhenAnyValue(x => x.Title)
+            .Subscribe(title =>
+                {
+                    if (_packetProvider is not null)
+                    {
+                        _packetProvider.DocumentTitle = title;
+                    }
+                }
+            );
+
         FilterProfiles = filterProfiles;
         _ctSource = new CancellationTokenSource();
         _providers = providers;
@@ -84,6 +105,7 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
                 {
                     Loading = true;
                     _packetProvider = new DummyPacketProvider(Title);
+                    _packetProvider.DocumentTitle = Title;
                     NestedViewModel = new PacketLogViewModel(_packetProvider, filterProfiles);
                     Loaded = true;
                     onDocumentLoaded(this);
@@ -121,7 +143,14 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
                     return;
                 }
 
-                Title = Path.GetFileName(path);
+                _titleHandle?.Dispose();
+                _titleHandle = titleGenerator.AddTitle
+                (
+                    title => Title = title,
+                    Observable.Empty<string>(),
+                    Path.GetFileName(path)
+                );
+                _packetProvider.DocumentTitle = Title;
                 NestedViewModel = new PacketLogViewModel(provider, filterProfiles);
                 Loaded = true;
                 Loading = false;
@@ -168,21 +197,16 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
                     return;
                 }
 
-                _cleanUp = process.WhenPropertyChanged(x => x.CharacterString)
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Do
-                    (
-                        _ =>
-                        {
-                            Title = (process.BrowserManager.IsInGame.Get()
-                                ? process.BrowserManager.PlayerManager.Get().Player.Name
-                                : null) ?? $"Not in game ({process.Process.Id})";
-                        }
-                    )
-                    .Subscribe();
+                _titleHandle?.Dispose();
+                _titleHandle = titleGenerator.AddTitle
+                (
+                    title => Title = title,
+                    provider.WhenAnyValue(x => x.Name).ObserveOn(RxApp.MainThreadScheduler),
+                    provider.Name
+                );
 
+                _packetProvider.DocumentTitle = Title;
                 NestedViewModel = new PacketLogViewModel(provider, filterProfiles);
-                Title = handshakeResponse.CharacterName ?? $"Not in game ({process.Process.Id})";
                 Loading = false;
                 Loaded = true;
                 onDocumentLoaded(this);
@@ -209,23 +233,20 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
                 _packetProvider = provider;
                 repository.SetEntity<ClientPacketProvider>(client, provider);
 
-                _cleanUp = process.WhenPropertyChanged(x => x.CharacterString)
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Do
-                    (
-                        _ =>
-                        {
-                            Title = (process.BrowserManager.IsInGame.Get()
-                                ? process.BrowserManager.PlayerManager.Get().Player.Name
-                                : null) ?? $"Not in game ({process.Process.Id})";
-                        }
-                    )
-                    .Subscribe();
-
+                _titleHandle?.Dispose();
+                _titleHandle = titleGenerator.AddTitle
+                (
+                    title => Title = title,
+                    provider
+                        .WhenAnyValue(x => x.Name)
+                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .Select(x => x + " - sniff"),
+                    provider.Name
+                );
                 await provider.Open();
 
+                _packetProvider.DocumentTitle = Title;
                 NestedViewModel = new PacketLogViewModel(provider, filterProfiles);
-                Title = provider.Name;
                 Loading = false;
                 Loaded = true;
                 onDocumentLoaded(this);
@@ -238,7 +259,16 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
             {
                 Loading = true;
                 NestedViewModel = new PacketSenderViewModel(provider);
-                Title = $"Sender ({provider.Name})";
+                _titleHandle?.Dispose();
+                _titleHandle = titleGenerator.AddTitle
+                (
+                    title => Title = title,
+                    provider
+                        .WhenAnyValue(x => x.DocumentTitle)
+                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .Select(x => $"Sender - {provider.DocumentTitle}"),
+                    provider.Name
+                );
                 Loaded = true;
                 Loading = false;
             }
@@ -250,7 +280,13 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
         (
             () =>
             {
-                Title = "Settings";
+                _titleHandle?.Dispose();
+                _titleHandle = titleGenerator.AddTitle
+                (
+                    title => Title = title,
+                    Observable.Empty<string>(),
+                    "Settings"
+                );
                 NestedViewModel = new SettingsViewModel(filterProfiles);
                 Loaded = true;
             }
@@ -354,6 +390,7 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
     /// <inheritdoc />
     public void Dispose()
     {
+        _titleHandle?.Dispose();
         _cleanUp?.Dispose();
         _ctSource.Cancel();
         _ctSource.Dispose();

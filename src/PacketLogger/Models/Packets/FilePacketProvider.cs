@@ -39,6 +39,11 @@ public class FilePacketProvider : IPacketProvider
         _fileName = fileName;
     }
 
+    /// <summary>
+    /// Gets or sets title of document.
+    /// </summary>
+    public string DocumentTitle { get; set; } = string.Empty;
+
     /// <inheritdoc />
     public string Name => Path.GetFileName(_fileName);
 

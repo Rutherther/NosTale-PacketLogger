@@ -54,6 +54,11 @@ public abstract class ClientPacketProvider : ReactiveObject, IPacketProvider
         ? _process.BrowserManager.PlayerManager.Get().Player.Name
         : null) ?? $"Not in game ({_process.Process.Id})";
 
+    /// <summary>
+    /// Gets or sets title of document.
+    /// </summary>
+    public string DocumentTitle { get; set; } = string.Empty;
+
     /// <inheritdoc />
     public abstract bool IsOpen { get; }
 

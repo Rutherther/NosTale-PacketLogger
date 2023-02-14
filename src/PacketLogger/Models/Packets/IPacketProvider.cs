@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DynamicData;
 using PacketLogger.Models.Filters;
+using PacketLogger.Models.Titles;
 using Remora.Results;
 
 namespace PacketLogger.Models.Packets;
@@ -25,6 +26,11 @@ public interface IPacketProvider : INotifyPropertyChanged, IDisposable
     /// Gets the name.
     /// </summary>
     public string Name { get; }
+
+    /// <summary>
+    /// Gets title of document, if any.
+    /// </summary>
+    public string DocumentTitle { get; set; }
 
     /// <summary>
     /// Gets whether <see cref="Open"/> was called and successfully finished.
