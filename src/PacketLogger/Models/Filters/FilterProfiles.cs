@@ -71,7 +71,7 @@ public class FilterProfiles
     /// <summary>
     /// Gets or sets the collection of profiles.
     /// </summary>
-    public ObservableCollection<FilterProfile> SelectableProfiles { get; }
+    public ObservableCollection<FilterProfile> SelectableProfiles { get; private set; }
 
     /// <summary>
     /// Gets or sets the collection of profiles.
@@ -87,6 +87,16 @@ public class FilterProfiles
             }
 
             DefaultProfile = value.First();
+            if (DefaultFilterEnabled)
+            {
+                SelectableProfiles = new ObservableCollection<FilterProfile>(value);
+            }
+            else
+            {
+                SelectableProfiles = new ObservableCollection<FilterProfile>(value.Skip(1));
+            }
+            SelectableProfiles.Add(new FilterProfile(false) { Name = "No profile" });
+
             _allProfiles = value;
         }
     }
