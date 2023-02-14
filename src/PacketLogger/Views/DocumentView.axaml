@@ -77,8 +77,11 @@
 
                     <StackPanel Grid.Row="3" Grid.Column="0" Orientation="Vertical">
                         <TextBlock FontSize="30" Margin="0,0,0,5" Text="Connect to NosTale process" />
-                        <DataGrid CanUserReorderColumns="True" CanUserResizeColumns="True"
-                                  Margin="0,0,30,0" Items="{Binding Processes}">
+                        <TextBlock IsVisible="{Binding !Processes.Supported}"
+                                   TextWrapping="Wrap"
+                                   Text="Connecting to NosTale processes is supported only on Windows with elevated process (right click, 'Run as Administrator')." />
+                        <DataGrid IsVisible="{Binding Processes.Supported}" CanUserReorderColumns="True" CanUserResizeColumns="True"
+                                  Margin="0,0,30,0" Items="{Binding Processes.Processes}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Character" Binding="{Binding CharacterString}" />
                                 <DataGridTextColumn Header="Process" Binding="{Binding ProcessString}" />

@@ -9,14 +9,18 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Management;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Runtime.InteropServices;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using NosSmooth.Comms.Local;
 using NosSmooth.Core.Extensions;
 using NosSmooth.LocalBinding;
 using NosSmooth.LocalBinding.Errors;
 using NosSmooth.LocalBinding.Options;
+using NosSmooth.LocalBinding.Structs;
 using ReactiveUI;
 
 namespace PacketLogger.Models;
@@ -26,33 +30,131 @@ namespace PacketLogger.Models;
 /// </summary>
 public class NostaleProcesses : IDisposable
 {
-    private readonly IDisposable _cleanUp;
-    private readonly List<long> _errorfulProcesses;
+    private readonly IDisposable? _cleanUp;
+    private readonly ManagementEventWatcher? _processStartWatcher;
+    private readonly ManagementEventWatcher? _processStopWatcher;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="NostaleProcesses"/> class.
     /// </summary>
     public NostaleProcesses()
     {
-        _errorfulProcesses = new List<long>();
         Processes = new ObservableCollection<NostaleProcess>();
-        _cleanUp = Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(1))
-            .ObserveOn(RxApp.TaskpoolScheduler)
-            .Subscribe
-            (
-                _ =>
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            var principal = new WindowsPrincipal(WindowsIdentity.GetCurrent());
+            if (principal.IsInRole(WindowsBuiltInRole.Administrator))
+            {
+                _cleanUp = Observable.Timer(DateTimeOffset.Now, TimeSpan.FromSeconds(1))
+                    .Subscribe(_ => UpdateNames());
+
+                Supported = true;
+                _processStartWatcher = new ManagementEventWatcher
+                    (new WqlEventQuery("SELECT * FROM Win32_ProcessStartTrace"));
+                _processStartWatcher.EventArrived += HandleProcessOpenedEvent;
+                _processStartWatcher.Start();
+
+                _processStopWatcher = new ManagementEventWatcher
+                    (new WqlEventQuery("SELECT * FROM Win32_ProcessStopTrace"));
+                _processStopWatcher.EventArrived += HandleProcessClosedEvent;
+                _processStopWatcher.Start();
+
+                // initial nostale processes
+                // rest is handled by events
+                foreach (var process in CommsInjector.FindNosTaleProcesses())
                 {
-                    try
-                    {
-                        Refresh().GetAwaiter().GetResult();
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                    }
+                    HandleProcessOpened(process.Id);
                 }
-            );
+            }
+        }
     }
+
+    private void HandleProcessOpenedEvent(object sender, EventArrivedEventArgs e)
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            HandleProcessOpened(Convert.ToInt32(e.NewEvent.Properties["ProcessId"].Value));
+        }
+    }
+
+    private void HandleProcessClosedEvent(object sender, EventArrivedEventArgs e)
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            HandleProcessClosed(Convert.ToInt32(e.NewEvent.Properties["ProcessId"].Value));
+        }
+    }
+
+    private void HandleProcessOpened(int processId)
+    {
+        Process process;
+        try
+        {
+            process = Process.GetProcessById(processId);
+        }
+        catch (Exception)
+        {
+            return;
+        }
+
+        if (!NosBrowserManager.IsProcessNostaleProcess(process))
+        {
+            return;
+        }
+
+        NosBrowserManager nosBrowserManager = new NosBrowserManager
+        (
+            process,
+            new PlayerManagerOptions(),
+            new SceneManagerOptions(),
+            new PetManagerOptions(),
+            new NetworkManagerOptions(),
+            new UnitManagerOptions()
+        );
+        var result = nosBrowserManager.Initialize();
+        if (!result.IsSuccess)
+        {
+            Console.WriteLine
+                ($"Got an error when trying to initialize nos browser manager for {process.ProcessName}");
+            Console.WriteLine(result.ToFullString());
+        }
+
+        if (nosBrowserManager.IsModuleLoaded<PlayerManager>())
+        {
+            RxApp.MainThreadScheduler.Schedule
+                (() => Processes.Add(new NostaleProcess(process, nosBrowserManager)));
+        }
+        else
+        {
+            Console.WriteLine
+            (
+                $"Cannot add {process.ProcessName} to nostale processes as player manager was not found in memory."
+            );
+        }
+    }
+
+    private void HandleProcessClosed(int processId)
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            var process = Processes.FirstOrDefault(x => x.Process.Id == processId);
+
+            if (process is not null)
+            {
+                RxApp.MainThreadScheduler.Schedule
+                    (() => Processes.Remove(process));
+            }
+        }
+    }
+
+    /// <summary>
+    /// Gets whether tracking and attaching to processes is supported for this run.
+    /// </summary>
+    /// <remarks>
+    /// Supported only on Windows run as elevated.
+    /// </remarks>
+    public bool Supported { get; }
 
     /// <summary>
     /// Gets NosTale processes.
@@ -62,73 +164,20 @@ public class NostaleProcesses : IDisposable
     /// <inheritdoc />
     public void Dispose()
     {
-        _cleanUp.Dispose();
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            _processStartWatcher?.Stop();
+            _processStartWatcher?.Dispose();
+            _processStopWatcher?.Stop();
+            _processStopWatcher?.Dispose();
+        }
     }
 
-    private async Task Refresh()
+    private void UpdateNames()
     {
-        var nosTaleProcesses = CommsInjector.FindNosTaleProcesses().Select(x => x.Id).ToArray();
-        var toRemove = new List<NostaleProcess>();
-
-        foreach (var currentProcess in Processes)
+        foreach (var process in Processes)
         {
-            if (nosTaleProcesses.All(x => x != currentProcess.Process.Id))
-            {
-                toRemove.Add(currentProcess);
-            }
-            else
-            {
-                RxApp.MainThreadScheduler.Schedule(() => currentProcess.ObserveChanges());
-            }
-        }
-
-        foreach (var remove in toRemove)
-        {
-            RxApp.MainThreadScheduler.Schedule(() => Processes.Remove(remove));
-        }
-
-        foreach (var openProcess in nosTaleProcesses)
-        {
-            if (Processes.All(x => x.Process.Id != openProcess) && !_errorfulProcesses.Contains(openProcess))
-            {
-                var process = Process.GetProcessById(openProcess);
-                NosBrowserManager nosBrowserManager = new NosBrowserManager
-                (
-                    process,
-                    new PlayerManagerOptions(),
-                    new SceneManagerOptions(),
-                    new PetManagerOptions(),
-                    new NetworkManagerOptions(),
-                    new UnitManagerOptions()
-                );
-                var result = nosBrowserManager.Initialize();
-                if (result.IsSuccess || (result.Error is CouldNotInitializeModuleError moduleError
-                    && moduleError.Module.Name.Contains("NtClient")))
-                {
-                    RxApp.MainThreadScheduler.Schedule
-                        (() => Processes.Add(new NostaleProcess(process, nosBrowserManager)));
-                }
-                else
-                {
-                    _errorfulProcesses.Add(openProcess);
-                    Console.WriteLine(result.ToFullString());
-                }
-            }
-        }
-
-        var errorfulToRemove = new List<long>();
-
-        foreach (var errorfulProcess in _errorfulProcesses)
-        {
-            if (nosTaleProcesses.All(x => x != errorfulProcess))
-            {
-                errorfulToRemove.Add(errorfulProcess);
-            }
-        }
-
-        foreach (var errorfulRemove in errorfulToRemove)
-        {
-            _errorfulProcesses.Remove(errorfulRemove);
+            process.ObserveChanges();
         }
     }
 }
