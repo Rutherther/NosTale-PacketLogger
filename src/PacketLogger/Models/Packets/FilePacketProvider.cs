@@ -45,6 +45,9 @@ public class FilePacketProvider : IPacketProvider
     public string DocumentTitle { get; set; } = string.Empty;
 
     /// <inheritdoc />
+    public bool Closed => false;
+
+    /// <inheritdoc />
     public string Name => Path.GetFileName(_fileName);
 
     /// <inheritdoc />

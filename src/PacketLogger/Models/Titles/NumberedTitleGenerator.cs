@@ -18,7 +18,7 @@ namespace PacketLogger.Models.Titles;
 /// </summary>
 public class NumberedTitleGenerator
 {
-    private readonly SemaphoreSlim _semaphore;
+    private readonly object _lock = new object();
     private readonly ConcurrentDictionary<string, List<Title>> _titles;
 
     /// <summary>
@@ -26,7 +26,6 @@ public class NumberedTitleGenerator
     /// </summary>
     public NumberedTitleGenerator()
     {
-        _semaphore = new SemaphoreSlim(1, 1);
         _titles = new ConcurrentDictionary<string, List<Title>>();
     }
 
@@ -76,33 +75,34 @@ public class NumberedTitleGenerator
 
     private void HandleTitleChange(Title title, string newTitle)
     {
-        _semaphore.Wait();
-        _titles.AddOrUpdate
-        (
-            title.CurrentTitle,
-            _ => new List<Title>(),
-            (_, u) =>
-            {
-                u.Remove(title);
-                return u;
-            }
-        );
-        UpdateNumbers(title.CurrentTitle);
+        lock (_lock)
+        {
+            _titles.AddOrUpdate
+            (
+                title.CurrentTitle,
+                _ => new List<Title>(),
+                (_, u) =>
+                {
+                    u.Remove(title);
+                    return u;
+                }
+            );
+            UpdateNumbers(title.CurrentTitle);
 
-        title.CurrentTitle = newTitle;
-        _titles.TryAdd(newTitle, new List<Title>());
-        _titles.AddOrUpdate
-        (
-            newTitle,
-            _ => new List<Title>(),
-            (_, u) =>
-            {
-                u.Add(title);
-                return u;
-            }
-        );
-        UpdateNumbers(title.CurrentTitle);
-        _semaphore.Release();
+            title.CurrentTitle = newTitle;
+            _titles.TryAdd(newTitle, new List<Title>());
+            _titles.AddOrUpdate
+            (
+                newTitle,
+                _ => new List<Title>(),
+                (_, u) =>
+                {
+                    u.Add(title);
+                    return u;
+                }
+            );
+            UpdateNumbers(title.CurrentTitle);
+        }
     }
 
     private void UpdateNumbers(string title)

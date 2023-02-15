@@ -23,6 +23,11 @@ namespace PacketLogger.Models.Packets;
 public interface IPacketProvider : INotifyPropertyChanged, IDisposable
 {
     /// <summary>
+    /// Gets whether the connection is closed.
+    /// </summary>
+    public bool Closed { get; }
+
+    /// <summary>
     /// Gets the name.
     /// </summary>
     public string Name { get; }

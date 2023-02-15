@@ -58,6 +58,9 @@ public class DummyPacketProvider : IPacketProvider, IDisposable
     }
 
     /// <inheritdoc />
+    public bool Closed => false;
+
+    /// <inheritdoc />
     public string Name { get; }
 
     /// <inheritdoc />

@@ -313,14 +313,17 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
             {
                 Loading = true;
                 NestedViewModel = new PacketSenderViewModel(provider);
+                _cleanUp?.Dispose();
+                _cleanUp = null;
+
                 _titleHandle?.Dispose();
                 _titleHandle = titleGenerator.AddTitle
                 (
                     title => Title = title,
                     provider
-                        .WhenAnyValue(x => x.DocumentTitle)
+                        .WhenValueChanged(x => x.DocumentTitle)
                         .ObserveOn(RxApp.MainThreadScheduler)
-                        .Select(x => $"Sender - {provider.DocumentTitle}"),
+                        .Select(x => "Sender - " + x),
                     provider.Name
                 );
                 Loaded = true;
