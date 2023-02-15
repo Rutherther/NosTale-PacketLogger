@@ -8,6 +8,7 @@
         xmlns:np="https://np.com/visuals"
         xmlns:views="clr-namespace:PacketLogger.Views"
         xmlns:core="clr-namespace:Dock.Model.Core;assembly=Dock.Model"
+        Icon="/Assets/logger.ico"
         ExtendClientAreaToDecorationsHint="True"
         Title="PacketLogger"
         FontFamily="avares://Avalonia.Themes.Fluent/Assets#Inter"
