@@ -6,6 +6,8 @@
 
 using System;
 using System.ComponentModel;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DynamicData;
@@ -42,17 +44,27 @@ public abstract class ClientPacketProvider : ReactiveObject, IPacketProvider
         _process = process;
         _client = client;
         Packets = new SourceList<PacketInfo>();
-        _cleanUp = process.WhenPropertyChanged(x => x.CharacterString)
+        var cleanUp1 = process.WhenPropertyChanged(x => x.CharacterString)
             .Subscribe
             (
                 _ => this.RaisePropertyChanged(nameof(Name))
             );
+
+        var cleanUp2 = process.WhenAnyValue(x => x.Closed)
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Subscribe(_ => this.RaisePropertyChanged(nameof(Closed)));
+        _cleanUp = new CompositeDisposable(cleanUp1, cleanUp2);
     }
 
     /// <inheritdoc />
     public string Name => (_process.BrowserManager.IsInGame.Get()
         ? _process.BrowserManager.PlayerManager.Get().Player.Name
         : null) ?? $"Not in game ({_process.Process.Id})";
+
+    /// <summary>
+    /// Gets whether the process has been closed.
+    /// </summary>
+    public bool Closed => _process.Closed;
 
     /// <summary>
     /// Gets or sets title of document.

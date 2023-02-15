@@ -85,7 +85,9 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
         );
 
         _cleanUp = this.WhenAnyValue(x => x.Title)
-            .Subscribe(title =>
+            .Subscribe
+            (
+                title =>
                 {
                     if (_packetProvider is not null)
                     {
@@ -207,7 +209,8 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
                     if (!runClientContractResult.IsDefined(out var runClientResponse))
                     {
                         repository.Remove(connection.Client);
-                        Error = "An error has occurred upon sending run client: " + runClientContractResult.ToFullString();
+                        Error = "An error has occurred upon sending run client: "
+                            + runClientContractResult.ToFullString();
                         Loading = false;
                         return;
                     }
@@ -220,7 +223,8 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
                         return;
                     }
 
-                    if (runClientResponse.BindingManagerResult is not null && !runClientResponse.BindingManagerResult.Value.IsSuccess)
+                    if (runClientResponse.BindingManagerResult is not null
+                        && !runClientResponse.BindingManagerResult.Value.IsSuccess)
                     {
                         Console.WriteLine("There was an error in binding initialization.");
                         Console.WriteLine(runClientResponse.BindingManagerResult.Value.ToFullString());
@@ -229,7 +233,8 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
                     if (!runClientResponse.InitializationResult.Value.IsSuccess)
                     {
                         repository.Remove(connection.Client);
-                        Error = "An error has occurred during starting client: " + runClientResponse.InitializationResult.ToFullString();
+                        Error = "An error has occurred during starting client: "
+                            + runClientResponse.InitializationResult.ToFullString();
                         Loading = false;
                         return;
                     }
@@ -239,7 +244,14 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
                 _titleHandle = titleGenerator.AddTitle
                 (
                     title => Title = title,
-                    provider.WhenAnyValue(x => x.Name).ObserveOn(RxApp.MainThreadScheduler),
+                    provider
+                        .WhenAnyValue(x => x.Name, x => x.Closed)
+                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .Select
+                        (
+                            (x) => (x.Item2 ? "Closed (" : string.Empty) + x.Item1
+                                + (x.Item2 ? ")" : string.Empty)
+                        ),
                     provider.Name
                 );
 
@@ -276,9 +288,13 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
                 (
                     title => Title = title,
                     provider
-                        .WhenAnyValue(x => x.Name)
+                        .WhenAnyValue(x => x.Name, x => x.Closed)
                         .ObserveOn(RxApp.MainThreadScheduler)
-                        .Select(x => x + " - sniff"),
+                        .Select
+                        (
+                            (x) => (x.Item2 ? "Closed (" : string.Empty) + (x.Item1 + " - sniff")
+                                + (x.Item2 ? ")" : string.Empty)
+                        ),
                     provider.Name
                 );
                 await provider.Open();

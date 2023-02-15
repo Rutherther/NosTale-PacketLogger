@@ -56,12 +56,23 @@ public class NostaleProcess : ObservableObject
     public NosBrowserManager BrowserManager { get; init; }
 
     /// <summary>
+    /// Gets whether the process has been closed.
+    /// </summary>
+    public bool Closed { get; private set; }
+
+    /// <summary>
     /// Look for changes in the process, fire property changed.
     /// </summary>
     internal void ObserveChanges()
     {
         try
         {
+            if (Process.HasExited)
+            {
+                Closed = true;
+                return;
+            }
+
             if (BrowserManager.IsInGame.Get() != _wasInGame)
             {
                 OnPropertyChanging(nameof(BrowserManager));

@@ -14,6 +14,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
+using System.Threading;
 using System.Threading.Tasks;
 using NosSmooth.Comms.Local;
 using NosSmooth.Core.Extensions;
@@ -31,6 +32,7 @@ namespace PacketLogger.Models;
 public class NostaleProcesses : IDisposable
 {
     private readonly IDisposable? _cleanUp;
+    private readonly SemaphoreSlim _semaphore;
     private readonly ManagementEventWatcher? _processStartWatcher;
     private readonly ManagementEventWatcher? _processStopWatcher;
 
@@ -39,6 +41,7 @@ public class NostaleProcesses : IDisposable
     /// </summary>
     public NostaleProcesses()
     {
+        _semaphore = new SemaphoreSlim(1, 1);
         Processes = new ObservableCollection<NostaleProcess>();
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -123,7 +126,13 @@ public class NostaleProcesses : IDisposable
         if (nosBrowserManager.IsModuleLoaded<PlayerManager>())
         {
             RxApp.MainThreadScheduler.Schedule
-                (() => Processes.Add(new NostaleProcess(process, nosBrowserManager)));
+                (() =>
+                    {
+                        _semaphore.Wait();
+                        Processes.Add(new NostaleProcess(process, nosBrowserManager));
+                        _semaphore.Release();
+                    }
+                );
         }
         else
         {
@@ -143,7 +152,14 @@ public class NostaleProcesses : IDisposable
             if (process is not null)
             {
                 RxApp.MainThreadScheduler.Schedule
-                    (() => Processes.Remove(process));
+                    (() =>
+                        {
+                            process.ObserveChanges();
+                            _semaphore.Wait();
+                            Processes.Remove(process);
+                            _semaphore.Release();
+                        }
+                    );
             }
         }
     }
@@ -175,9 +191,11 @@ public class NostaleProcesses : IDisposable
 
     private void UpdateNames()
     {
+        _semaphore.Wait();
         foreach (var process in Processes)
         {
             process.ObserveChanges();
         }
+        _semaphore.Release();
     }
 }
