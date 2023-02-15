@@ -22,7 +22,9 @@ using Dock.Model.Mvvm.Controls;
 using DynamicData.Binding;
 using Microsoft.Extensions.DependencyInjection;
 using NosSmooth.Comms.Data.Messages;
+using NosSmooth.Comms.Inject.Messages;
 using NosSmooth.Comms.Local;
+using NosSmooth.Comms.Local.Extensions;
 using NosSmooth.Core.Contracts;
 using NosSmooth.Core.Extensions;
 using NosSmooth.Core.Stateful;
@@ -188,13 +190,49 @@ public class DocumentViewModel : Document, INotifyPropertyChanged, IDisposable
                     return;
                 }
 
-                var handshakeInitResponse = handshakeResponse.InitializationErrorfulResult ?? Result.FromSuccess();
-                if (!handshakeInitResponse.IsSuccess)
+                var handshakeInitResponse = handshakeResponse.InitializationResult;
+                if (handshakeInitResponse is not null && !handshakeInitResponse.Value.IsSuccess)
                 {
                     repository.Remove(connection.Client);
                     Error = "An error has occurred during handshaking: " + handshakeInitResponse.ToFullString();
                     Loading = false;
                     return;
+                }
+
+                if (handshakeInitResponse is null)
+                {
+                    var runClientContractResult = await connection.Connection.ContractRunClient(new RunClientRequest())
+                        .WaitForAsync(DefaultStates.ResponseObtained, ct: ct);
+
+                    if (!runClientContractResult.IsDefined(out var runClientResponse))
+                    {
+                        repository.Remove(connection.Client);
+                        Error = "An error has occurred upon sending run client: " + runClientContractResult.ToFullString();
+                        Loading = false;
+                        return;
+                    }
+
+                    if (runClientResponse.InitializationResult is null)
+                    {
+                        repository.Remove(connection.Client);
+                        Error = "Unknown error";
+                        Loading = false;
+                        return;
+                    }
+
+                    if (runClientResponse.BindingManagerResult is not null && !runClientResponse.BindingManagerResult.Value.IsSuccess)
+                    {
+                        Console.WriteLine("There was an error in binding initialization.");
+                        Console.WriteLine(runClientResponse.BindingManagerResult.Value.ToFullString());
+                    }
+
+                    if (!runClientResponse.InitializationResult.Value.IsSuccess)
+                    {
+                        repository.Remove(connection.Client);
+                        Error = "An error has occurred during starting client: " + runClientResponse.InitializationResult.ToFullString();
+                        Loading = false;
+                        return;
+                    }
                 }
 
                 _titleHandle?.Dispose();
