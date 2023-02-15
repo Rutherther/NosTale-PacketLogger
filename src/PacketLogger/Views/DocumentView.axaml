@@ -114,7 +114,7 @@
 
                     <StackPanel Grid.Row="1" Grid.Column="1" Grid.RowSpan="3" Orientation="Vertical">
                         <TextBlock FontSize="30" Margin="0,0,0,5" Text="Open a sender for" />
-                        <DataGrid Margin="0,0,30,0" Items="{Binding Providers}">
+                        <DataGrid IsReadOnly="True" Margin="0,0,30,0" Items="{Binding Providers}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Tab" Binding="{Binding DocumentTitle}" />
                                 <DataGridTemplateColumn Header="Open">
