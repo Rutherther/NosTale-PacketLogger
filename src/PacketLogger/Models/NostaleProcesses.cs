@@ -95,13 +95,12 @@ public class NostaleProcesses : IDisposable
         try
         {
             process = Process.GetProcessById(processId);
+            if (!NosBrowserManager.IsProcessNostaleProcess(process))
+            {
+                return;
+            }
         }
         catch (Exception)
-        {
-            return;
-        }
-
-        if (!NosBrowserManager.IsProcessNostaleProcess(process))
         {
             return;
         }
@@ -126,13 +125,14 @@ public class NostaleProcesses : IDisposable
         if (nosBrowserManager.IsModuleLoaded<PlayerManager>())
         {
             RxApp.MainThreadScheduler.Schedule
-                (() =>
-                    {
-                        _semaphore.Wait();
-                        Processes.Add(new NostaleProcess(process, nosBrowserManager));
-                        _semaphore.Release();
-                    }
-                );
+            (
+                () =>
+                {
+                    _semaphore.Wait();
+                    Processes.Add(new NostaleProcess(process, nosBrowserManager));
+                    _semaphore.Release();
+                }
+            );
         }
         else
         {
@@ -152,14 +152,15 @@ public class NostaleProcesses : IDisposable
             if (process is not null)
             {
                 RxApp.MainThreadScheduler.Schedule
-                    (() =>
-                        {
-                            process.ObserveChanges();
-                            _semaphore.Wait();
-                            Processes.Remove(process);
-                            _semaphore.Release();
-                        }
-                    );
+                (
+                    () =>
+                    {
+                        process.ObserveChanges();
+                        _semaphore.Wait();
+                        Processes.Remove(process);
+                        _semaphore.Release();
+                    }
+                );
             }
         }
     }
